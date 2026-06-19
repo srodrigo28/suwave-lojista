@@ -1,0 +1,336 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111317;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Wordmark SUWAVE padronizado (logo + subtitulo opcional + splash)        */
+/* Mesmo componente/efeito em app/web, app/logista, app/motorista,         */
+/* app/painel — ver _components/suwave-wordmark.tsx                        */
+/* ---------------------------------------------------------------------- */
+
+.suwaveSplash {
+  align-items: center;
+  animation: suwaveSplashDismiss 3.8s ease forwards;
+  background: #fff !important;
+  color: #050505;
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  overflow: hidden;
+  padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+  pointer-events: auto;
+  position: absolute;
+  z-index: 100;
+}
+
+.suwaveSplashIsland {
+  animation: suwaveIslandIn 0.7s ease-out forwards;
+  background: #030303;
+  border-radius: 999px;
+  height: 40px;
+  left: 50%;
+  opacity: 0;
+  position: absolute;
+  top: 18px;
+  transform: translateX(-50%) scale(0.94);
+  width: 126px;
+}
+
+.suwaveSplashIsland span {
+  background: #07172a;
+  border-radius: 999px;
+  box-shadow: 0 0 9px #155dff;
+  display: block;
+  height: 5px;
+  position: absolute;
+  right: 22px;
+  top: 17px;
+  width: 5px;
+}
+
+.suwaveSplashWordmark {
+  animation: suwaveLogoFloat 2.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  display: grid;
+  inline-size: min(100%, 390px);
+  isolation: isolate;
+  justify-items: center;
+  overflow: visible;
+  place-items: center;
+  position: relative;
+}
+
+.suwaveSplashLogo {
+  align-items: center;
+  animation: suwaveReveal 2.45s ease-out forwards;
+  color: #050505;
+  display: flex;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(48px, 14.8vw, 82px);
+  font-weight: 900;
+  gap: clamp(1px, 0.7vw, 4px);
+  letter-spacing: 0;
+  line-height: 1;
+  max-inline-size: 100%;
+  opacity: 0;
+  padding-inline: 0.02em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.suwaveSplashLogoText {
+  color: #050505;
+  display: inline-block;
+}
+
+.suwaveSplashWave {
+  animation: suwaveWavePulse 2.45s ease-out forwards;
+  color: #ffb400;
+  letter-spacing: 0;
+  margin-inline: -0.02em;
+  transform-origin: 50% 60%;
+}
+
+.suwaveSplashWordmark strong {
+  animation: suwaveReveal 2.35s ease-out forwards;
+  animation-delay: 0.22s;
+  color: #050505;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(17px, 4.6vw, 24px);
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  line-height: 1;
+  margin-top: 13px;
+  opacity: 0;
+  padding-left: 0.38em;
+}
+
+.suwaveSplashWordmark i {
+  animation: suwaveLight 2.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 180 0 / 0.02),
+    rgb(255 180 0 / 0.62),
+    rgb(255 255 255 / 0.92),
+    rgb(255 180 0 / 0.18),
+    transparent
+  );
+  border-radius: 999px;
+  box-shadow:
+    0 0 14px rgb(255 180 0 / 0.26),
+    0 0 28px rgb(255 180 0 / 0.18);
+  height: clamp(8px, 2vw, 14px);
+  left: -52%;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  width: 46%;
+  z-index: 2;
+}
+
+.suwaveWordmark {
+  display: grid;
+  justify-items: center;
+  line-height: 1;
+  max-width: 100%;
+}
+
+.suwaveLogo {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.suwaveLogoText,
+.suwaveLogoWave {
+  display: inline-block;
+  font-family: Arial Black, Arial, Helvetica, sans-serif;
+  font-size: clamp(46px, 13.2vw, 74px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.suwaveLogoText {
+  color: #050505 !important;
+}
+
+.suwaveLogoWave {
+  color: #ffb400 !important;
+  margin-inline: -0.025em;
+}
+
+.suwaveLogoSub {
+  color: #050505 !important;
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(15px, 4.2vw, 23px);
+  font-weight: 900;
+  letter-spacing: 0.44em;
+  line-height: 1;
+  margin-top: 15px;
+  padding-left: 0.44em;
+  text-align: center;
+}
+
+@keyframes suwaveSplashDismiss {
+  0%,
+  78% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  92% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.015);
+    visibility: hidden;
+  }
+}
+
+@keyframes suwaveIslandIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes suwaveLogoFloat {
+  0% {
+    transform: translateY(18px) scale(0.985);
+  }
+
+  52% {
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+@keyframes suwaveLight {
+  0% {
+    left: -52%;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  72% {
+    opacity: 1;
+  }
+
+  88% {
+    left: 106%;
+    opacity: 0;
+  }
+
+  100% {
+    left: 106%;
+    opacity: 0;
+  }
+}
+
+@keyframes suwaveReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+
+  18% {
+    opacity: 0.2;
+  }
+
+  68% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes suwaveWavePulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(-4deg);
+  }
+
+  32% {
+    opacity: 1;
+    transform: scale(1.08) rotate(0deg);
+  }
+
+  60% {
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suwaveSplash {
+    animation: suwaveSplashDismiss 0.01s linear forwards;
+  }
+
+  .suwaveSplashWordmark,
+  .suwaveSplashIsland,
+  .suwaveSplashLogo,
+  .suwaveSplashWordmark strong {
+    animation: none;
+    opacity: 1;
+  }
+
+  .suwaveSplashWordmark i {
+    animation: none;
+    opacity: 0;
+  }
+}
