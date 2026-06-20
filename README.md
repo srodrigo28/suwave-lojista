@@ -39,6 +39,26 @@ npm run lint
 npm run build
 ```
 
+## Commit e push
+
+Repositorio: `https://github.com/srodrigo28/suwave-logista.git`
+
+Fluxo:
+
+```powershell
+git status --short --branch
+npm run lint
+npm run build
+git add <arquivos-do-logista>
+git commit -m "feat(logista): descricao"
+git push origin main
+```
+
+Leituras de apoio:
+
+- `docs/index.md`
+- `..\..\docs\MAPA-COMMIT-PUSH-QUALIDADE-MODULOS.md`
+
 ## Proximas frentes
 
 - Reputacao/avaliacoes.

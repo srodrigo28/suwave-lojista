@@ -17,7 +17,6 @@ import {
   linkSellerRole,
   loginSeller,
   registerSeller,
-  saveSellerSession,
 } from "./seller-api";
 import { SuwaveSplash, SuwaveWordmark } from "./suwave-wordmark";
 
