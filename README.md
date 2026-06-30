@@ -1,4 +1,4 @@
-# SUWAVE Logista
+# SUWAVE Lojista
 
 App web do lojista/vendedor.
 
@@ -49,8 +49,8 @@ Fluxo:
 git status --short --branch
 npm run lint
 npm run build
-git add <arquivos-do-logista>
-git commit -m "feat(logista): descricao"
+git add <arquivos-do-lojista>
+git commit -m "feat(lojista): descricao"
 git push origin main
 ```
 
