@@ -89,6 +89,7 @@ export type SellerSession = {
     full_name: string;
     id: string;
     role: string;
+    roles?: string[];
   };
 };
 
@@ -146,6 +147,7 @@ export type SellerSettings = {
 
 type ApiEnvelope<T> = {
   data: T;
+  error?: { message?: string };
   message?: string;
 };
 
@@ -191,13 +193,20 @@ async function sellerRequest<T>(path: string, init: RequestInit = {}, token?: st
   const body = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
 
   if (!response.ok) {
-    throw new Error(body?.message ?? "Nao foi possivel conectar a API do lojista.");
+    throw new Error(body?.message ?? body?.error?.message ?? "Nao foi possivel conectar a API do lojista.");
   }
 
   return body?.data as T;
 }
 
-type ConflictDetail = { exists: boolean; same_account: boolean };
+type ConflictDetail = {
+  can_link_seller?: boolean | null;
+  exists: boolean;
+  has_driver_profile?: boolean | null;
+  has_seller_role?: boolean | null;
+  message?: string | null;
+  same_account: boolean;
+};
 
 export type SellerAccountAvailability = {
   available: boolean;
@@ -206,8 +215,9 @@ export type SellerAccountAvailability = {
 
 export async function checkSellerAccountAvailability(input: { email?: string; whatsapp?: string }) {
   const data = await sellerRequest<SellerAccountAvailability>("/auth/account/availability", {
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, target_role: "seller" }),
     method: "POST",
+    headers: { "X-Client-App": "logista" },
   });
 
   return data;
@@ -256,6 +266,26 @@ export async function linkSellerRole(token: string) {
   return session;
 }
 
+export async function linkSellerCredential(email: string, password: string) {
+  const data = await sellerRequest<{
+    access_token: string;
+    refresh_token: string;
+    user: SellerSession["user"];
+  }>("/auth/seller/link-credential", {
+    body: JSON.stringify({ email, password }),
+    method: "POST",
+    headers: { "X-Client-App": "logista" },
+  });
+
+  const session: SellerSession = {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    user: data.user,
+  };
+  saveSellerSession(session);
+  return session;
+}
+
 export async function loginSeller(identifier: string, password: string) {
   const payload = identifier.includes("@")
     ? { email: identifier.trim(), password }
@@ -265,9 +295,10 @@ export async function loginSeller(identifier: string, password: string) {
     access_token: string;
     refresh_token: string;
     user: SellerSession["user"];
-  }>("/auth/login", {
+  }>("/auth/seller/login", {
     body: JSON.stringify(payload),
     method: "POST",
+    headers: { "X-Client-App": "logista" },
   });
 
   const session = {

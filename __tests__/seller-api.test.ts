@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   forgotSellerPassword,
+  linkSellerCredential,
   resetSellerPassword,
   loginSeller,
   saveSellerSession,
@@ -75,7 +76,7 @@ describe("forgotSellerPassword", () => {
   it("throws with the API message on error response", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockJsonResponse(
-        { message: "E-mail ou WhatsApp não encontrado." },
+        { error: { message: "E-mail ou WhatsApp não encontrado." } },
         404,
       ),
     );
@@ -173,7 +174,7 @@ describe("resetSellerPassword", () => {
 // ---------------------------------------------------------------------------
 
 describe("loginSeller", () => {
-  it("sends POST to /auth/login with email payload when identifier contains @", async () => {
+  it("sends POST to /auth/seller/login with email payload when identifier contains @", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockJsonResponse({
         data: {
@@ -187,11 +188,11 @@ describe("loginSeller", () => {
     await loginSeller("seller@example.com", "secret123");
 
     const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
-    expect(url).toContain("/auth/login");
+    expect(url).toContain("/auth/seller/login");
     expect(JSON.parse(init.body as string)).toEqual({ email: "seller@example.com", password: "secret123" });
   });
 
-  it("sends POST to /auth/login with whatsapp payload when identifier has no @", async () => {
+  it("sends POST to /auth/seller/login with whatsapp payload when identifier has no @", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockJsonResponse({
         data: {
@@ -253,6 +254,47 @@ describe("loginSeller", () => {
     await expect(loginSeller("seller@example.com", "wrongpass")).rejects.toThrow(
       "E-mail ou senha inválidos.",
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// linkSellerCredential
+// ---------------------------------------------------------------------------
+
+describe("linkSellerCredential", () => {
+  it("sends POST to /auth/seller/link-credential with email and password", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      mockJsonResponse({
+        data: {
+          access_token: "tok-access",
+          refresh_token: "tok-refresh",
+          user: { id: "u1", email: "seller@example.com", full_name: "Seller", role: "seller" },
+        },
+      }),
+    );
+
+    await linkSellerCredential("seller@example.com", "secret123");
+
+    const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/auth/seller/link-credential");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({ email: "seller@example.com", password: "secret123" });
+  });
+
+  it("saves the linked seller session", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      mockJsonResponse({
+        data: {
+          access_token: "tok-access",
+          refresh_token: "tok-refresh",
+          user: { id: "u1", email: "seller@example.com", full_name: "Seller", role: "seller" },
+        },
+      }),
+    );
+
+    await linkSellerCredential("seller@example.com", "secret123");
+
+    expect(getSellerSession()?.accessToken).toBe("tok-access");
   });
 });
 

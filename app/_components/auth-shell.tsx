@@ -17,6 +17,7 @@ import { loginSchema, registerSchema, zodErrors } from "./form-schemas";
 import { maskWhatsapp } from "./masks";
 import {
   checkSellerAccountAvailability,
+  linkSellerCredential,
   linkSellerRole,
   loginSeller,
   registerSeller,
@@ -235,11 +236,19 @@ export function RegisterScreen() {
       let session;
 
       if (emailConflict?.exists) {
+        if (emailConflict.has_seller_role) {
+          const message = emailConflict.message ?? "Este e-mail já possui cadastro de lojista. Faça login para acessar sua loja.";
+          setFeedback(message);
+          toast.error(message);
+          router.push("/login");
+          return;
+        }
+
         try {
-          session = await loginSeller(parsed.data.email, parsed.data.password);
-          await linkSellerRole(session.accessToken);
+          session = await linkSellerCredential(parsed.data.email, parsed.data.password);
+          toast.info(emailConflict.message ?? "Conta SUWAVE encontrada. Criamos o acesso de lojista nesta mesma conta.");
         } catch {
-          const message = "Este e-mail já existe em outro app SUWAVE. Informe a senha dessa conta ou recupere sua senha.";
+          const message = "Este e-mail já existe na SUWAVE. Informe a senha dessa conta ou recupere sua senha.";
           setFeedback(message);
           toast.error(message);
           return;
