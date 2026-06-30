@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, ReactNode, SelectHTMLAttributes, useMemo, useState } from "react";
+import { FormEvent, ReactNode, SelectHTMLAttributes, useEffect, useMemo, useState } from "react";
 import {
   Building2,
   ChevronDown,
@@ -17,6 +17,7 @@ import {
   Store,
 } from "lucide-react";
 import { maskCep, maskWhatsapp, onlyDigits } from "./masks";
+import { fetchAddressByCep } from "./cep";
 import { getSellerSession, updateSellerProfile } from "./seller-api";
 
 type FieldProps = {
@@ -174,9 +175,62 @@ export function CommerceRegisterScreen() {
   const [district, setDistrict] = useState("");
   const [address, setAddress] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [cepFeedback, setCepFeedback] = useState("");
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const cities = useMemo(() => (state ? citiesByState[state] ?? [] : []), [state]);
+  const statesOptions = useMemo(() => (state && !states.includes(state) ? [...states, state] : states), [state]);
+  const cities = useMemo(() => {
+    const options = state ? citiesByState[state] ?? [] : [];
+    return city && !options.includes(city) ? [...options, city] : options;
+  }, [city, state]);
+
+  useEffect(() => {
+    const digits = onlyDigits(cep);
+    if (digits.length !== 8) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const timeout = window.setTimeout(async () => {
+      try {
+        setIsLoadingCep(true);
+        setCepFeedback("");
+        const result = await fetchAddressByCep(digits);
+        if (cancelled) {
+          return;
+        }
+
+        setState(result.estado);
+        setCity(result.cidade);
+        setDistrict((current) => result.bairro || current);
+        setAddress((current) => result.rua || current);
+      } catch (error) {
+        if (!cancelled) {
+          setCepFeedback(error instanceof Error ? error.message : "Não foi possível consultar o CEP agora.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingCep(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [cep]);
+
+  function handleCepChange(value: string) {
+    const nextCep = maskCep(value);
+    if (onlyDigits(nextCep).length < 8) {
+      setCepFeedback("");
+      setIsLoadingCep(false);
+    }
+    setCep(nextCep);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -277,11 +331,12 @@ export function CommerceRegisterScreen() {
                 <ShadInput
                   icon={<Search aria-hidden="true" className="h-5 w-5" />}
                   inputMode="numeric"
-                  onChange={(event) => setCep(maskCep(event.target.value))}
-                  placeholder="00000-000"
+                  onChange={(event) => handleCepChange(event.target.value)}
+                  placeholder={isLoadingCep ? "Consultando..." : "00000-000"}
                   required
                   value={cep}
                 />
+                {cepFeedback ? <small className="text-xs font-bold text-[#dc2626]">{cepFeedback}</small> : null}
               </Field>
               <Field label="Estado">
                 <ShadSelect
@@ -293,7 +348,7 @@ export function CommerceRegisterScreen() {
                   value={state}
                 >
                   <option value="">Selecione</option>
-                  {states.map((item) => (
+                  {statesOptions.map((item) => (
                     <option key={item} value={item}>
                       {item}
                     </option>
