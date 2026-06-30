@@ -1,5 +1,5 @@
-import { ProfileFormScreen } from "../../_components/profile-form-screen";
+import { LojistaPerfilScreen } from "../../_components/lojista-desktop-screens";
 
 export default function Page() {
-  return <ProfileFormScreen />;
+  return <LojistaPerfilScreen />;
 }

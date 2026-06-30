@@ -1,5 +1,5 @@
-import { SellerStaticPage } from "../_components/page-factory";
+import { LojistaInicioScreen } from "../_components/lojista-desktop-screens";
 
 export default function Page() {
-  return <SellerStaticPage pageId="dashboard" />;
+  return <LojistaInicioScreen />;
 }

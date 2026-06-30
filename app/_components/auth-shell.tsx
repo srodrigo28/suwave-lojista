@@ -12,6 +12,8 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify";
+import { loginSchema, registerSchema, zodErrors } from "./form-schemas";
 import { maskWhatsapp } from "./masks";
 import {
   checkSellerAccountAvailability,
@@ -54,6 +56,7 @@ export function LoginScreen() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"email" | "password", string>>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,13 +64,25 @@ export function LoginScreen() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback("");
+    setFieldErrors({});
+    const parsed = loginSchema.safeParse({ email: identifier, password });
+    if (!parsed.success) {
+      const errors = zodErrors<"email" | "password">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos para entrar.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await loginSeller(identifier, password);
+      await loginSeller(parsed.data.email, parsed.data.password);
+      toast.success("Login realizado com sucesso.");
       router.push("/dashboard");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel entrar agora.");
+      const message = error instanceof Error ? error.message : "Não foi possível entrar agora.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -96,28 +111,27 @@ export function LoginScreen() {
         <form className="mt-[47px] grid gap-[27px]" onSubmit={handleSubmit}>
           <label className="grid gap-3">
             <span className="text-[14px] font-black leading-none text-[#111111]">E-mail</span>
-            <span className="flex h-[56px] items-center gap-[18px] rounded-[8px] border border-[#d4d4d4] bg-transparent px-[15px] text-[#7c7f88]">
+            <span className={`flex h-[56px] items-center gap-[18px] rounded-[8px] border bg-transparent px-[15px] text-[#7c7f88] ${fieldErrors.email ? "border-[#ef4444]" : "border-[#d4d4d4]"}`}>
               <FaEnvelope aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent text-[16px] font-semibold text-[#111111] outline-0 placeholder:text-[#8d9099]"
                 onChange={(event) => setIdentifier(event.target.value)}
                 placeholder="Digite seu e-mail"
-                required
                 type="email"
                 value={identifier}
               />
             </span>
+            {fieldErrors.email ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.email}</small> : null}
           </label>
 
           <label className="grid gap-3">
             <span className="text-[14px] font-black leading-none text-[#111111]">Senha</span>
-            <span className="flex h-[56px] items-center gap-[18px] rounded-[8px] border border-[#d4d4d4] bg-transparent px-[15px] text-[#7c7f88]">
+            <span className={`flex h-[56px] items-center gap-[18px] rounded-[8px] border bg-transparent px-[15px] text-[#7c7f88] ${fieldErrors.password ? "border-[#ef4444]" : "border-[#d4d4d4]"}`}>
               <FaLock aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent text-[16px] font-semibold text-[#111111] outline-0 placeholder:text-[#8d9099]"
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Digite sua senha"
-                required
                 type={showPassword ? "text" : "password"}
                 value={password}
               />
@@ -134,6 +148,7 @@ export function LoginScreen() {
                 )}
               </button>
             </span>
+            {fieldErrors.password ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.password}</small> : null}
           </label>
 
           <Link
@@ -182,36 +197,38 @@ export function RegisterScreen() {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<"email" | "fullName" | "password" | "whatsapp", string>>
+  >({});
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback("");
-
-    const onlyDigits = (v: string) => v.replace(/\D/g, "");
-    const wa = onlyDigits(whatsapp);
-    if (wa.length < 10) {
-      setFeedback("Informe um WhatsApp com DDD.");
-      return;
-    }
-    if (password.length < 6) {
-      setFeedback("Use uma senha com pelo menos 6 caracteres.");
+    setFieldErrors({});
+    const parsed = registerSchema.safeParse({ email, fullName, password, whatsapp });
+    if (!parsed.success) {
+      const errors = zodErrors<"email" | "fullName" | "password" | "whatsapp">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos do cadastro.");
       return;
     }
 
     setIsSubmitting(true);
     try {
       const availability = await checkSellerAccountAvailability({
-        email: email.trim().toLowerCase(),
-        whatsapp: wa,
+        email: parsed.data.email,
+        whatsapp: parsed.data.whatsapp,
       });
 
       const emailConflict = availability.conflicts.email;
       const waConflict = availability.conflicts.whatsapp;
 
       if (waConflict?.exists && !waConflict.same_account) {
-        setFeedback("WhatsApp já cadastrado em outra conta SUWAVE. Use a conta existente ou outro número.");
+        const message = "WhatsApp já cadastrado em outra conta SUWAVE. Use a conta existente ou outro número.";
+        setFeedback(message);
+        toast.error(message);
         return;
       }
 
@@ -219,25 +236,35 @@ export function RegisterScreen() {
 
       if (emailConflict?.exists) {
         try {
-          session = await loginSeller(email.trim().toLowerCase(), password);
+          session = await loginSeller(parsed.data.email, parsed.data.password);
           await linkSellerRole(session.accessToken);
         } catch {
-          setFeedback("Este e-mail já existe em outro app SUWAVE. Informe a senha dessa conta ou recupere sua senha.");
+          const message = "Este e-mail já existe em outro app SUWAVE. Informe a senha dessa conta ou recupere sua senha.";
+          setFeedback(message);
+          toast.error(message);
           return;
         }
       } else {
         session = await registerSeller({
-          email: email.trim().toLowerCase(),
-          full_name: fullName.trim(),
-          password,
-          whatsapp: wa,
+          email: parsed.data.email,
+          full_name: parsed.data.fullName,
+          password: parsed.data.password,
+          whatsapp: parsed.data.whatsapp,
         });
         await linkSellerRole(session.accessToken);
       }
 
+      try {
+        window.localStorage.setItem("suwave:logista:draft-email", parsed.data.email);
+      } catch {
+        // Local storage pode estar indisponivel em navegadores restritos.
+      }
+      toast.success("Cadastro validado com sucesso.");
       router.push("/store/profile");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Não foi possível criar a conta agora.");
+      const message = error instanceof Error ? error.message : "Não foi possível criar a conta agora.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -271,54 +298,54 @@ export function RegisterScreen() {
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">Seu nome completo</span>
               <input
-                className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold outline-0"
+                className={`h-12 rounded-[12px] border bg-[#f8fafb] px-4 text-sm font-bold outline-0 ${fieldErrors.fullName ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Maria da Silva"
-                required
                 value={fullName}
               />
+              {fieldErrors.fullName ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.fullName}</small> : null}
             </label>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">WhatsApp comercial</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.whatsapp ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaWhatsapp className="text-[#078323]" aria-hidden="true" />
                 <input
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold outline-0"
                   inputMode="tel"
                   onChange={(e) => setWhatsapp(maskWhatsapp(e.target.value))}
                   placeholder="(66) 99999-0000"
-                  required
                   value={whatsapp}
                 />
               </div>
+              {fieldErrors.whatsapp ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.whatsapp}</small> : null}
             </label>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">E-mail de acesso</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.email ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaEnvelope className="text-[#078323]" aria-hidden="true" />
                 <input
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold outline-0"
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="loja@suwave.com"
-                  required
                   type="email"
                   value={email}
                 />
               </div>
+              {fieldErrors.email ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.email}</small> : null}
             </label>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">Senha</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.password ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaLock className="text-[#078323]" aria-hidden="true" />
                 <input
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold outline-0"
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
-                  required
                   type="password"
                   value={password}
                 />
               </div>
+              {fieldErrors.password ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.password}</small> : null}
             </label>
 
             {feedback ? (
