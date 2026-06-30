@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   BadgePercent,
   Bell,
@@ -30,6 +33,10 @@ import {
   WalletCards,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { toast } from "react-toastify";
+import { fetchAddressByCep } from "./cep";
+import { profileSchema, zodErrors } from "./form-schemas";
+import { maskCep, maskCnpj, maskCurrencyBRL, maskUf, maskWhatsapp } from "./masks";
 
 type NavItem = {
   href: string;
@@ -41,6 +48,22 @@ type DesktopShellProps = {
   active: "inicio" | "perfil";
   children: React.ReactNode;
 };
+
+type ProfileField =
+  | "category"
+  | "cep"
+  | "city"
+  | "cnpj"
+  | "email"
+  | "minimumOrder"
+  | "neighborhood"
+  | "number"
+  | "ownerName"
+  | "ownerPhone"
+  | "state"
+  | "street"
+  | "storeName"
+  | "whatsapp";
 
 const navGroups: NavItem[][] = [
   [
@@ -229,8 +252,14 @@ export function LojistaInicioScreen() {
             <span className="absolute left-[9.6%] right-[9.6%] top-[43px] h-[4px] bg-[#b8b8b8]" />
             <span className="absolute left-[9.6%] top-[43px] h-[4px] w-[10.2%] bg-[#22c55e]" />
 
-            {onboardingSteps.map((step, index) => (
-              <article className="relative z-10 grid justify-items-center px-[12px] text-center" key={step.title}>
+            {onboardingSteps.map((step, index) => {
+              const hrefByStep: Record<number, string> = {
+                1: "/store/profile",
+                2: "/store/delivery",
+                4: "/products",
+              };
+              const content = (
+                <>
                 <ProgressCircle index={index} />
                 <h3 className="mt-[25px] text-[17px] font-black leading-tight text-[#050505]">
                   {index + 1}. {step.title}
@@ -238,8 +267,23 @@ export function LojistaInicioScreen() {
                 <p className="mt-[15px] max-w-[190px] text-[15px] font-medium leading-[1.7] text-[#424653]">
                   {step.description}
                 </p>
-              </article>
-            ))}
+                </>
+              );
+
+              return hrefByStep[index] ? (
+                <Link
+                  className="relative z-10 grid justify-items-center px-[12px] text-center no-underline transition hover:opacity-80"
+                  href={hrefByStep[index]}
+                  key={step.title}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <article className="relative z-10 grid justify-items-center px-[12px] text-center" key={step.title}>
+                  {content}
+                </article>
+              );
+            })}
           </div>
 
           <section className="mt-[58px] flex min-h-[94px] items-center gap-[20px] rounded-[8px] border border-[#f4d789] bg-[#fffdf9] px-[20px]">
@@ -268,7 +312,7 @@ export function LojistaInicioScreen() {
             </div>
             <button
               className="flex h-[58px] min-w-[234px] items-center justify-center gap-[14px] rounded-[8px] bg-[#eeeeee] px-[24px] text-[18px] font-black text-[#9b9b9b]"
-              disabled
+              onClick={() => toast.info("Complete todas as etapas para liberar sua loja.")}
               type="button"
             >
               <Lock aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={2.2} />
@@ -302,10 +346,16 @@ const scheduleRows = [
   ["Domingo", "09:00", "22:00"],
 ];
 
-function ProfileInfoCard({ icon: Icon, subtitle, title }: (typeof profileCards)[number]) {
+function ProfileInfoCard({
+  icon: Icon,
+  onClick,
+  subtitle,
+  title,
+}: (typeof profileCards)[number] & { onClick?: () => void }) {
   return (
     <button
       className="flex h-[91px] w-full items-center rounded-[8px] border border-[#e5e5e5] bg-white px-[23px] text-left"
+      onClick={onClick}
       type="button"
     >
       <span className="grid h-[47px] w-[47px] shrink-0 place-items-center rounded-[10px] bg-[#fff3d8] text-[#8a6410]">
@@ -321,6 +371,100 @@ function ProfileInfoCard({ icon: Icon, subtitle, title }: (typeof profileCards)[
 }
 
 export function LojistaPerfilScreen() {
+  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [category, setCategory] = useState("");
+  const [cep, setCep] = useState("78550-000");
+  const [city, setCity] = useState("Sinop");
+  const [cnpj, setCnpj] = useState("12.345.678/0001-90");
+  const [email, setEmail] = useState("contato@saboresia.com.br");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<ProfileField, string>>>({});
+  const [minimumOrder, setMinimumOrder] = useState("R$ 20,00");
+  const [neighborhood, setNeighborhood] = useState("Centro");
+  const [number, setNumber] = useState("174");
+  const [ownerName, setOwnerName] = useState("Representante Saboresia");
+  const [ownerPhone, setOwnerPhone] = useState("(66) 99999-0000");
+  const [state, setState] = useState("MT");
+  const [street, setStreet] = useState("Avenida Alameda");
+  const [storeName, setStoreName] = useState("Saboresia");
+  const [whatsapp, setWhatsapp] = useState("(66) 99999-0000");
+  const [isCepLoading, setIsCepLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) {
+      return;
+    }
+
+    let active = true;
+
+    async function loadAddress() {
+      setIsCepLoading(true);
+      try {
+        const address = await fetchAddressByCep(digits);
+        if (!active) {
+          return;
+        }
+        setStreet(address.rua || street);
+        setNeighborhood(address.bairro || neighborhood);
+        setCity(address.cidade || city);
+        setState(address.estado || state);
+        setFieldErrors((current) => ({ ...current, cep: undefined }));
+        toast.success("Endereço preenchido pelo CEP.");
+      } catch (error) {
+        if (active) {
+          const message = error instanceof Error ? error.message : "Não foi possível consultar o CEP.";
+          setFieldErrors((current) => ({ ...current, cep: message }));
+          toast.error(message);
+        }
+      } finally {
+        if (active) {
+          setIsCepLoading(false);
+        }
+      }
+    }
+
+    void loadAddress();
+
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cep]);
+
+  function handleProfileSave() {
+    setFieldErrors({});
+    const parsed = profileSchema.safeParse({
+      category,
+      cep,
+      city,
+      cnpj,
+      email,
+      minimumOrder,
+      neighborhood,
+      number,
+      ownerName,
+      ownerPhone,
+      state,
+      street,
+      storeName,
+      whatsapp,
+    });
+
+    if (!parsed.success) {
+      const errors = zodErrors<ProfileField>(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos do perfil.");
+      return;
+    }
+
+    setIsSaving(true);
+    window.setTimeout(() => {
+      setIsSaving(false);
+      toast.success("Perfil atualizado com sucesso.");
+    }, 550);
+  }
+
   return (
     <LojistaDesktopShell active="perfil">
       <section className="flex-1 px-[23px] pb-[32px] pt-[26px]">
@@ -337,7 +481,7 @@ export function LojistaPerfilScreen() {
 
           <div className="pt-[6px]">
             <div className="flex items-center gap-[18px]">
-              <h1 className="text-[31px] font-black leading-tight tracking-normal text-[#050505]">Saboresia</h1>
+              <h1 className="text-[31px] font-black leading-tight tracking-normal text-[#050505]">{storeName}</h1>
               <button
                 aria-label="Editar nome fantasia"
                 className="grid h-[29px] w-[29px] place-items-center rounded-full bg-[#fff8e7] text-[#ffb000]"
@@ -358,25 +502,94 @@ export function LojistaPerfilScreen() {
           <section>
             <div className="grid gap-0">
               {profileCards.map((card) => (
-                <ProfileInfoCard icon={card.icon} key={card.title} subtitle={card.subtitle} title={card.title} />
+                <div key={card.title}>
+                  <ProfileInfoCard
+                    icon={card.icon}
+                    onClick={() => setActivePanel((current) => (current === card.title ? null : card.title))}
+                    subtitle={card.subtitle}
+                    title={card.title}
+                  />
+                  {activePanel === card.title ? (
+                    <div className="grid gap-3 border-x border-[#e5e5e5] bg-[#fffdf8] px-[23px] py-4">
+                      {card.title === "Dados comerciais" ? (
+                        <>
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.email ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setEmail(event.target.value)} placeholder="E-mail" value={email} />
+                          {fieldErrors.email ? <small className="font-bold text-[#dc2626]">{fieldErrors.email}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.whatsapp ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setWhatsapp(maskWhatsapp(event.target.value))} placeholder="Telefone" value={whatsapp} />
+                          {fieldErrors.whatsapp ? <small className="font-bold text-[#dc2626]">{fieldErrors.whatsapp}</small> : null}
+                        </>
+                      ) : null}
+                      {card.title === "Endereço da loja" ? (
+                        <>
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cep ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setCep(maskCep(event.target.value))} placeholder="CEP" value={cep} />
+                          {fieldErrors.cep ? <small className="font-bold text-[#dc2626]">{fieldErrors.cep}</small> : null}
+                          {isCepLoading ? <small className="font-bold text-[#8a6410]">Consultando CEP...</small> : null}
+                          <div className="grid grid-cols-[1fr_90px] gap-3">
+                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setStreet(event.target.value)} placeholder="Rua" value={street} />
+                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setNumber(event.target.value)} placeholder="Número" value={number} />
+                          </div>
+                          <div className="grid grid-cols-[1fr_1fr_70px] gap-3">
+                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setNeighborhood(event.target.value)} placeholder="Bairro" value={neighborhood} />
+                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setCity(event.target.value)} placeholder="Cidade" value={city} />
+                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setState(maskUf(event.target.value))} placeholder="UF" value={state} />
+                          </div>
+                        </>
+                      ) : null}
+                      {card.title === "Dados do sócio" ? (
+                        <>
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerName ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setOwnerName(event.target.value)} placeholder="Nome do representante" value={ownerName} />
+                          {fieldErrors.ownerName ? <small className="font-bold text-[#dc2626]">{fieldErrors.ownerName}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerPhone ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setOwnerPhone(maskWhatsapp(event.target.value))} placeholder="Telefone do representante" value={ownerPhone} />
+                          {fieldErrors.ownerPhone ? <small className="font-bold text-[#dc2626]">{fieldErrors.ownerPhone}</small> : null}
+                        </>
+                      ) : null}
+                      {card.title === "Informação da loja" ? (
+                        <>
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.storeName ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setStoreName(event.target.value)} placeholder="Nome fantasia" value={storeName} />
+                          {fieldErrors.storeName ? <small className="font-bold text-[#dc2626]">{fieldErrors.storeName}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cnpj ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setCnpj(maskCnpj(event.target.value))} placeholder="CNPJ" value={cnpj} />
+                          {fieldErrors.cnpj ? <small className="font-bold text-[#dc2626]">{fieldErrors.cnpj}</small> : null}
+                        </>
+                      ) : (
+                        card.title === "Dados bancários" || card.title === "Formas de pagamento" ? (
+                          <p className="text-sm font-bold text-[#4b5563]">Configuração disponível em breve. O perfil pode ser salvo com os dados atuais.</p>
+                        ) : null
+                      )}
+                    </div>
+                  ) : null}
+                </div>
               ))}
             </div>
 
             <section className="rounded-[8px] border border-[#e5e5e5] bg-white px-[23px] pb-[19px] pt-[18px]">
               <h2 className="text-[16px] font-black leading-tight text-[#050505]">Selecione uma categoria abaixo</h2>
               <div className="mt-[17px] grid grid-cols-4 gap-[14px]">
-                {categories.map((category) => (
+                {categories.map((categoryOption) => (
                   <button
-                    className="relative grid h-[87px] place-items-end justify-items-center rounded-[7px] border border-[#e5e5e5] bg-white px-[10px] pb-[19px] text-[14px] font-medium text-[#050505]"
-                    key={category}
+                    className={`relative grid h-[87px] place-items-end justify-items-center rounded-[7px] border bg-white px-[10px] pb-[19px] text-[14px] font-medium text-[#050505] ${
+                      fieldErrors.category
+                        ? "border-[#ef4444]"
+                        : category === categoryOption
+                          ? "border-[#ffb000]"
+                          : "border-[#e5e5e5]"
+                    }`}
+                    key={categoryOption}
+                    onClick={() => {
+                      setCategory(categoryOption);
+                      setFieldErrors((current) => ({ ...current, category: undefined }));
+                    }}
                     type="button"
                   >
-                    <span className="absolute right-[13px] top-[13px] h-[17px] w-[17px] rounded-full border-2 border-[#8e94a1]" />
-                    {category}
+                    <span className="absolute right-[13px] top-[13px] grid h-[17px] w-[17px] place-items-center rounded-full border-2 border-[#8e94a1]">
+                      {category === categoryOption ? <span className="h-[7px] w-[7px] rounded-full bg-[#ffb000]" /> : null}
+                    </span>
+                    {categoryOption}
                   </button>
                 ))}
               </div>
-              <p className="mt-[18px] text-[14px] font-black text-[#ff2b2b]">Essa seleção é obrigatória.</p>
+              {fieldErrors.category ? (
+                <p className="mt-[18px] text-[14px] font-black text-[#ff2b2b]">{fieldErrors.category}</p>
+              ) : null}
             </section>
           </section>
 
@@ -430,8 +643,8 @@ export function LojistaPerfilScreen() {
                   <input
                     className="w-[120px] border-0 bg-transparent text-[20px] font-black text-[#050505] outline-0"
                     id="minimum-order"
-                    readOnly
-                    value="R$ 20,00"
+                    onChange={(event) => setMinimumOrder(maskCurrencyBRL(event.target.value))}
+                    value={minimumOrder}
                   />
                   <span className="grid gap-[7px] text-[#050505]">
                     <ChevronDown aria-hidden="true" className="h-[18px] w-[18px] rotate-180" strokeWidth={3} />
@@ -445,10 +658,12 @@ export function LojistaPerfilScreen() {
               <div className="mt-[60px] flex justify-end">
                 <button
                   className="flex h-[49px] w-[304px] items-center justify-center gap-[17px] rounded-[6px] bg-[#ffb000] text-[18px] font-black text-[#050505]"
+                  disabled={isSaving}
+                  onClick={handleProfileSave}
                   type="button"
                 >
                   <RefreshCw aria-hidden="true" className="h-[21px] w-[21px]" strokeWidth={2.4} />
-                  Atualizar perfil
+                  {isSaving ? "Atualizando..." : "Atualizar perfil"}
                 </button>
               </div>
             </section>

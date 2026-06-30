@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Info, Mail } from "lucide-react";
+import { toast } from "react-toastify";
 
 function SuwaveLogo() {
   return (
@@ -77,7 +78,16 @@ export function EmailConfirmationScreen() {
   }, []);
 
   function updateDigit(index: number, event: ChangeEvent<HTMLInputElement>) {
-    const digit = event.target.value.replace(/\D/g, "").slice(-1);
+    const rawValue = event.target.value.replace(/\D/g, "");
+    if (rawValue.length > 1) {
+      const pastedCode = rawValue.slice(0, 4).padEnd(4, "").split("");
+      setCode(pastedCode);
+      setFeedback("");
+      inputRefs.current[Math.min(rawValue.length, 4) - 1]?.focus();
+      return;
+    }
+
+    const digit = rawValue.slice(-1);
     const nextCode = [...code];
     nextCode[index] = digit;
     setCode(nextCode);
@@ -98,16 +108,20 @@ export function EmailConfirmationScreen() {
     setSecondsLeft(596);
     setCode(["", "", "", ""]);
     setFeedback("Enviamos um novo código para o e-mail informado.");
+    toast.success("Enviamos um novo código para o e-mail informado.");
     inputRefs.current[0]?.focus();
   }
 
   function continueFlow() {
     if (code.some((digit) => !digit)) {
-      setFeedback("Digite os 4 dígitos para continuar.");
+      const message = "Digite os 4 dígitos para continuar.";
+      setFeedback(message);
+      toast.error(message);
       inputRefs.current[code.findIndex((digit) => !digit)]?.focus();
       return;
     }
 
+    toast.success("E-mail confirmado com sucesso.");
     router.push("/register/waiting");
   }
 

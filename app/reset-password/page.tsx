@@ -5,6 +5,8 @@ import Link from "next/link";
 import { FormEvent, Suspense, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaLock } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import { resetPasswordSchema, zodErrors } from "../_components/form-schemas";
 import { resetSellerPassword } from "../_components/seller-api";
 
 function ResetPasswordForm() {
@@ -13,6 +15,7 @@ function ResetPasswordForm() {
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"confirm" | "password" | "token", string>>>({});
   const [feedback, setFeedback] = useState("");
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,24 +23,23 @@ function ResetPasswordForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback("");
-    if (password.length < 6) {
-      setFeedback("Use uma senha com pelo menos 6 caracteres.");
-      return;
-    }
-    if (password !== confirm) {
-      setFeedback("As senhas não coincidem.");
-      return;
-    }
-    if (!token) {
-      setFeedback("Link inválido. Solicite um novo link de redefinição.");
+    setFieldErrors({});
+    const parsed = resetPasswordSchema.safeParse({ confirm, password, token });
+    if (!parsed.success) {
+      const errors = zodErrors<"confirm" | "password" | "token">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos da nova senha.");
       return;
     }
     setIsSubmitting(true);
     try {
-      await resetSellerPassword(token, password);
+      await resetSellerPassword(parsed.data.token, parsed.data.password);
+      toast.success("Senha redefinida com sucesso.");
       setSuccess(true);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Não foi possível redefinir sua senha.");
+      const message = error instanceof Error ? error.message : "Não foi possível redefinir sua senha.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,33 +110,33 @@ function ResetPasswordForm() {
           <form className="grid gap-3" onSubmit={handleSubmit}>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">Nova senha</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.password ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaLock className="text-[#078323]" aria-hidden="true" />
                 <input
                   autoComplete="new-password"
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Mínimo 6 caracteres"
-                  required
                   type="password"
                   value={password}
                 />
               </div>
+              {fieldErrors.password ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.password}</small> : null}
             </label>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">Confirmar senha</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.confirm ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaLock className="text-[#078323]" aria-hidden="true" />
                 <input
                   autoComplete="new-password"
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
                   onChange={(event) => setConfirm(event.target.value)}
                   placeholder="Repita a senha"
-                  required
                   type="password"
                   value={confirm}
                 />
               </div>
+              {fieldErrors.confirm ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.confirm}</small> : null}
             </label>
 
             {feedback ? (

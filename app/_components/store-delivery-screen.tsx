@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaMotorcycle, FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { AuthPhone } from "./auth-shell";
+import { fetchAddressByCep } from "./cep";
+import { deliverySchema, zodErrors } from "./form-schemas";
+import { maskCep, maskCurrencyBRL } from "./masks";
 import {
   getSellerSession,
   getSellerSettings,
@@ -48,7 +52,10 @@ function Field({
 }
 
 export function StoreDeliveryScreen() {
+  const [cep, setCep] = useState("78550-000");
+  const [addressPreview, setAddressPreview] = useState("Sinop - MT");
   const [delivery, setDelivery] = useState(defaultDelivery);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"cep" | "fee" | "radius", string>>>({});
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -67,7 +74,9 @@ export function StoreDeliveryScreen() {
       })
       .catch((error) => {
         if (active) {
-          setFeedback(error instanceof Error ? error.message : "Nao foi possivel carregar entrega.");
+          const message = error instanceof Error ? error.message : "Não foi possível carregar entrega.";
+          setFeedback(message);
+          toast.error(message);
         }
       });
 
@@ -80,11 +89,46 @@ export function StoreDeliveryScreen() {
     setDelivery((current) => ({ ...current, ...patch }));
   }
 
+  async function handleCepChange(value: string) {
+    const nextCep = maskCep(value);
+    setCep(nextCep);
+    setFieldErrors((current) => ({ ...current, cep: undefined }));
+
+    if (nextCep.replace(/\D/g, "").length !== 8) {
+      return;
+    }
+
+    try {
+      const address = await fetchAddressByCep(nextCep);
+      setAddressPreview(`${address.rua || "Endereço"} · ${address.cidade} - ${address.estado}`);
+      toast.success("Endereço de entrega preenchido pelo CEP.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Não foi possível consultar o CEP.";
+      setFieldErrors((current) => ({ ...current, cep: message }));
+      toast.error(message);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const session = getSellerSession();
     if (!session?.accessToken) {
-      setFeedback("Entre com uma conta lojista para salvar entrega.");
+      const message = "Entre com uma conta lojista para salvar entrega.";
+      setFeedback(message);
+      toast.error(message);
+      return;
+    }
+
+    setFieldErrors({});
+    const parsed = deliverySchema.safeParse({
+      cep,
+      fee: delivery.delivery_fee,
+      radius: delivery.radius_km,
+    });
+    if (!parsed.success) {
+      const errors = zodErrors<"cep" | "fee" | "radius">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise as regras de entrega.");
       return;
     }
 
@@ -95,8 +139,11 @@ export function StoreDeliveryScreen() {
       const settings = await updateSellerSettings(session.accessToken, { delivery });
       setDelivery(settings.delivery);
       setFeedback("Regras de entrega atualizadas.");
+      toast.success("Regras de entrega atualizadas.");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel salvar entrega.");
+      const message = error instanceof Error ? error.message : "Não foi possível salvar entrega.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -117,12 +164,12 @@ export function StoreDeliveryScreen() {
 
         <section className="grid gap-5 px-6 py-6">
           <div className="rounded-[8px] bg-[#102017] p-5 text-white">
-            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Logistica real</span>
+            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Logística real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">
               {delivery.enabled ? `${delivery.radius_km} km de raio` : "Entrega pausada"}
             </h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
-              Taxa {delivery.delivery_fee} · {delivery.average_time_minutes} min em media.
+              Taxa {delivery.delivery_fee} · {delivery.average_time_minutes} min em média.
             </p>
           </div>
 
@@ -151,6 +198,22 @@ export function StoreDeliveryScreen() {
             </section>
 
             <div className="grid grid-cols-2 gap-3">
+              <label className="grid gap-2">
+                <span className="text-xs font-black text-[#4b5563]">CEP base</span>
+                <input
+                  className={`h-12 rounded-[12px] border bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 ${fieldErrors.cep ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}
+                  onChange={(event) => handleCepChange(event.target.value)}
+                  placeholder="78550-000"
+                  value={cep}
+                />
+                {fieldErrors.cep ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.cep}</small> : null}
+              </label>
+              <div className="grid content-end rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 py-3 text-xs font-black text-[#4b5563]">
+                {addressPreview}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <Field
                 label="Raio km"
                 onChange={(value) => updateDelivery({ radius_km: Number(value || 0) })}
@@ -164,15 +227,15 @@ export function StoreDeliveryScreen() {
                 value={String(delivery.average_time_minutes)}
               />
             </div>
-            <Field
-              label="Taxa de entrega"
-              onChange={(value) => updateDelivery({ delivery_fee: value })}
+              <Field
+                label="Taxa de entrega"
+              onChange={(value) => updateDelivery({ delivery_fee: maskCurrencyBRL(value) })}
               placeholder="R$ 7,90"
               value={delivery.delivery_fee}
             />
             <Field
-              label="Pedido minimo"
-              onChange={(value) => updateDelivery({ minimum_order: value })}
+              label="Pedido mínimo"
+              onChange={(value) => updateDelivery({ minimum_order: maskCurrencyBRL(value) })}
               placeholder="R$ 20,00"
               value={delivery.minimum_order}
             />

@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaMoneyBillWave, FaWallet } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { AuthPhone } from "./auth-shell";
+import { maskCurrencyBRL, unmaskCurrencyBRL } from "./masks";
 import {
   getSellerSession,
   getSellerWallet,
@@ -13,11 +15,6 @@ import {
   type SellerWithdrawal,
 } from "./seller-api";
 
-function centsFromMoney(value: string) {
-  const normalized = value.replace(/[^\d,]/g, "").replace(",", ".");
-  return Math.round(Number(normalized || "0") * 100);
-}
-
 function formatCents(cents: number) {
   return `R$ ${(cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -25,7 +22,7 @@ function formatCents(cents: number) {
 const statusLabels: Record<string, string> = {
   approved: "Aprovado",
   paid: "Pago",
-  pending_review: "Em analise",
+  pending_review: "Em análise",
   rejected: "Rejeitado",
 };
 
@@ -56,7 +53,9 @@ export function WithdrawalScreen() {
       })
       .catch((error) => {
         if (active) {
-          setFeedback(error instanceof Error ? error.message : "Nao foi possivel carregar os saques.");
+          const message = error instanceof Error ? error.message : "Não foi possível carregar os saques.";
+          setFeedback(message);
+          toast.error(message);
         }
       });
 
@@ -69,11 +68,19 @@ export function WithdrawalScreen() {
     event.preventDefault();
     const session = getSellerSession();
     if (!session?.accessToken) {
-      setFeedback("Entre com uma conta lojista para solicitar saque.");
+      const message = "Entre com uma conta lojista para solicitar saque.";
+      setFeedback(message);
+      toast.error(message);
       return;
     }
 
-    const amountCents = centsFromMoney(amount);
+    const amountCents = Math.round(unmaskCurrencyBRL(amount) * 100);
+    if (amountCents <= 0) {
+      const message = "Informe um valor de saque maior que zero.";
+      setFeedback(message);
+      toast.error(message);
+      return;
+    }
     setSubmitting(true);
     setFeedback("");
 
@@ -86,9 +93,12 @@ export function WithdrawalScreen() {
       setAmount("");
       const updatedWallet = await getSellerWallet(session.accessToken);
       setWallet(updatedWallet);
-      setFeedback("Solicitacao de saque criada.");
+      setFeedback("Solicitação de saque criada.");
+      toast.success("Solicitação de saque criada.");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel solicitar o saque.");
+      const message = error instanceof Error ? error.message : "Não foi possível solicitar o saque.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -111,10 +121,10 @@ export function WithdrawalScreen() {
           <div className="rounded-[8px] bg-[#102017] p-5 text-white">
             <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Financeiro real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">
-              {wallet?.affiliate.available_commission ?? "Comissao disponivel"}
+              {wallet?.affiliate.available_commission ?? "Comissão disponível"}
             </h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
-              Minimo {wallet?.affiliate.min_withdrawal ?? "R$ 0,00"} · {wallet?.affiliate.status_label ?? "Conta nao carregada"}
+              Mínimo {wallet?.affiliate.min_withdrawal ?? "R$ 0,00"} · {wallet?.affiliate.status_label ?? "Conta não carregada"}
             </p>
           </div>
 
@@ -123,9 +133,8 @@ export function WithdrawalScreen() {
               <span className="text-xs font-black text-[#4b5563]">Valor do saque</span>
               <input
                 className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
-                onChange={(event) => setAmount(event.target.value)}
+                onChange={(event) => setAmount(maskCurrencyBRL(event.target.value))}
                 placeholder="R$ 50,00"
-                required
                 value={amount}
               />
             </label>

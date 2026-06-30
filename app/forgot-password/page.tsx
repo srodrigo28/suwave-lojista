@@ -4,10 +4,13 @@ import { AuthPhone } from "../_components/auth-shell";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaEnvelope } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { forgotPasswordSchema, zodErrors } from "../_components/form-schemas";
 import { forgotSellerPassword } from "../_components/seller-api";
 
 export default function Page() {
   const [email, setEmail] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"email", string>>>({});
   const [feedback, setFeedback] = useState("");
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,12 +18,24 @@ export default function Page() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback("");
+    setFieldErrors({});
+    const parsed = forgotPasswordSchema.safeParse({ email });
+    if (!parsed.success) {
+      const errors = zodErrors<"email">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(errors.email ?? "Informe um e-mail válido.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await forgotSellerPassword(email.trim().toLowerCase());
+      await forgotSellerPassword(parsed.data.email);
+      toast.success("Enviamos as instruções para seu e-mail.");
       setSuccess(true);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Não foi possível enviar o link agora.");
+      const message = error instanceof Error ? error.message : "Não foi possível enviar o link agora.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -70,17 +85,17 @@ export default function Page() {
           <form className="grid gap-3" onSubmit={handleSubmit}>
             <label className="grid gap-2">
               <span className="text-xs font-black text-[#4b5563]">E-mail</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
+              <div className={`flex h-12 items-center gap-3 rounded-[12px] border bg-[#f8fafb] px-4 ${fieldErrors.email ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}>
                 <FaEnvelope className="text-[#078323]" aria-hidden="true" />
                 <input
                   className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="seu@email.com"
-                  required
                   type="email"
                   value={email}
                 />
               </div>
+              {fieldErrors.email ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.email}</small> : null}
             </label>
 
             {feedback ? (

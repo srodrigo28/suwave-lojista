@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { FaArrowLeft, FaBoxOpen, FaCheckCircle, FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { AuthPhone } from "./auth-shell";
+import { productSchema, zodErrors } from "./form-schemas";
+import { maskCurrencyBRL, maskUf } from "./masks";
 import { createSellerProduct, getSellerSession, type SellerProductPayload } from "./seller-api";
 
 type ProductModule = "foods" | "roupas" | "oficina_maquinas" | "outros";
@@ -11,7 +14,7 @@ type ProductModule = "foods" | "roupas" | "oficina_maquinas" | "outros";
 const PRODUCT_MODULES: Array<{ id: ProductModule; label: string }> = [
   { id: "foods", label: "Foods" },
   { id: "roupas", label: "Roupas" },
-  { id: "oficina_maquinas", label: "Oficina / Maquinas" },
+  { id: "oficina_maquinas", label: "Oficina / Máquinas" },
   { id: "outros", label: "Outros" },
 ];
 
@@ -28,7 +31,7 @@ const productTypes: Array<{
   {
     category: "services",
     key: "oficina",
-    label: "Oficina (servico)",
+    label: "Oficina (serviço)",
     module: "oficina_maquinas",
     subcategory: "mechanics",
     type: "service",
@@ -36,7 +39,7 @@ const productTypes: Array<{
   {
     category: "classifieds",
     key: "machinery",
-    label: "Maquinas e pecas",
+    label: "Máquinas e peças",
     module: "oficina_maquinas",
     subcategory: "machinery",
     type: "vehicle",
@@ -44,16 +47,16 @@ const productTypes: Array<{
   {
     category: "services",
     key: "service",
-    label: "Servico",
+    label: "Serviço",
     module: "outros",
     subcategory: "local-service",
     type: "service",
   },
-  { category: "classifieds", key: "vehicle", label: "Veiculo", module: "outros", subcategory: "vehicle", type: "vehicle" },
+  { category: "classifieds", key: "vehicle", label: "Veículo", module: "outros", subcategory: "vehicle", type: "vehicle" },
   {
     category: "classifieds",
     key: "real_estate",
-    label: "Imovel",
+    label: "Imóvel",
     module: "outros",
     subcategory: "real-estate",
     type: "real_estate",
@@ -67,13 +70,13 @@ function defaultAttributes(key: string, type: SellerProductPayload["type"], titl
     machinery: {
       brand: "A definir",
       condition: "usada",
-      equipment_type: title || "Maquina",
+      equipment_type: title || "Máquina",
       hours_used: "0",
       warranty: "sem garantia",
     },
-    oficina: { availability: "com agendamento", base_price: price, service_area: title || "Servico de oficina", specialty: "Mecanica geral" },
+    oficina: { availability: "com agendamento", base_price: price, service_area: title || "Serviço de oficina", specialty: "Mecânica geral" },
     real_estate: { area: "0 m2", bathrooms: "1", bedrooms: "1", operation: "venda", property_type: "casa" },
-    service: { availability: "com agendamento", base_price: price, service_area: title || "Servico local" },
+    service: { availability: "com agendamento", base_price: price, service_area: title || "Serviço local" },
     vehicle: {
       brand: "A definir",
       color: "A definir",
@@ -121,6 +124,7 @@ function Field({
 export function ProductFormScreen() {
   const [city, setCity] = useState("Sinop");
   const [description, setDescription] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"category" | "price" | "stock" | "title", string>>>({});
   const [feedback, setFeedback] = useState("");
   const [price, setPrice] = useState("");
   const [state, setState] = useState("MT");
@@ -136,7 +140,23 @@ export function ProductFormScreen() {
     event.preventDefault();
     const session = getSellerSession();
     if (!session?.accessToken) {
-      setFeedback("Entre com uma conta lojista para salvar o produto.");
+      const message = "Entre com uma conta lojista para salvar o produto.";
+      setFeedback(message);
+      toast.error(message);
+      return;
+    }
+
+    setFieldErrors({});
+    const parsed = productSchema.safeParse({
+      category: typeKey,
+      price,
+      stock,
+      title,
+    });
+    if (!parsed.success) {
+      const errors = zodErrors<"category" | "price" | "stock" | "title">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos do produto.");
       return;
     }
 
@@ -158,12 +178,15 @@ export function ProductFormScreen() {
         type: selectedType.type,
       });
       setFeedback(`Produto salvo: ${product.title}`);
+      toast.success(`Produto salvo: ${product.title}`);
       setTitle("");
       setDescription("");
       setPrice("");
       setStock("1");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel salvar o produto.");
+      const message = error instanceof Error ? error.message : "Não foi possível salvar o produto.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -184,10 +207,10 @@ export function ProductFormScreen() {
 
         <section className="grid gap-5 px-6 py-6">
           <div className="rounded-[8px] bg-[#102017] p-5 text-white">
-            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Catalogo real</span>
+            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Catálogo real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">Cadastrar item</h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
-              Salve rascunhos, produtos e anuncios no backend do lojista.
+              Salve rascunhos, produtos e anúncios no backend do lojista.
             </p>
           </div>
 
@@ -213,35 +236,40 @@ export function ProductFormScreen() {
               </select>
             </label>
 
-            <Field label="Titulo" onChange={setTitle} placeholder="Pizza grande promocional" required value={title} />
+            <Field label="Título" onChange={setTitle} placeholder="Pizza grande promocional" value={title} />
+            {fieldErrors.title ? <small className="-mt-2 text-xs font-bold text-[#dc2626]">{fieldErrors.title}</small> : null}
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Descricao</span>
+              <span className="text-xs font-black text-[#4b5563]">Descrição</span>
               <textarea
                 className="min-h-24 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 py-3 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Detalhes do produto, preparo, condicao ou disponibilidade"
-                required
+                placeholder="Detalhes do produto, preparo, condição ou disponibilidade"
                 value={description}
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Preco" onChange={setPrice} placeholder="R$ 49,90" required value={price} />
+              <Field label="Preço" onChange={(value) => setPrice(maskCurrencyBRL(value))} placeholder="R$ 49,90" value={price} />
               <Field label="Estoque" onChange={setStock} placeholder="1" type="number" value={stock} />
             </div>
+            {fieldErrors.price || fieldErrors.stock ? (
+              <small className="-mt-2 text-xs font-bold text-[#dc2626]">
+                {fieldErrors.price ?? fieldErrors.stock}
+              </small>
+            ) : null}
             <div className="grid grid-cols-[1fr_86px] gap-3">
-              <Field label="Cidade" onChange={setCity} required value={city} />
-              <Field label="UF" onChange={(value) => setState(value.slice(0, 2).toUpperCase())} required value={state} />
+              <Field label="Cidade" onChange={setCity} value={city} />
+              <Field label="UF" onChange={(value) => setState(maskUf(value))} value={state} />
             </div>
 
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Publicacao</span>
+              <span className="text-xs font-black text-[#4b5563]">Publicação</span>
               <select
                 className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0"
                 onChange={(event) => setStatus(event.target.value as SellerProductPayload["status"])}
                 value={status}
               >
                 <option value="draft">Salvar rascunho</option>
-                <option value="pending_review">Enviar para revisao</option>
+                <option value="pending_review">Enviar para revisão</option>
                 <option value="published">Publicar</option>
               </select>
             </label>

@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaClock, FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { AuthPhone } from "./auth-shell";
+import { maskTime } from "./masks";
 import { getSellerSession, getSellerSettings, updateSellerSettings, type SellerHour } from "./seller-api";
 
 const dayLabels: Record<string, string> = {
   friday: "Sexta",
   monday: "Segunda",
-  saturday: "Sabado",
+  saturday: "Sábado",
   sunday: "Domingo",
   thursday: "Quinta",
-  tuesday: "Terca",
+  tuesday: "Terça",
   wednesday: "Quarta",
 };
 
@@ -28,6 +30,7 @@ const defaultHours: SellerHour[] = [
 
 export function StoreHoursScreen() {
   const [feedback, setFeedback] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [hours, setHours] = useState<SellerHour[]>(defaultHours);
   const [submitting, setSubmitting] = useState(false);
 
@@ -46,7 +49,9 @@ export function StoreHoursScreen() {
       })
       .catch((error) => {
         if (active) {
-          setFeedback(error instanceof Error ? error.message : "Nao foi possivel carregar horarios.");
+          const message = error instanceof Error ? error.message : "Não foi possível carregar horários.";
+          setFeedback(message);
+          toast.error(message);
         }
       });
 
@@ -63,7 +68,26 @@ export function StoreHoursScreen() {
     event.preventDefault();
     const session = getSellerSession();
     if (!session?.accessToken) {
-      setFeedback("Entre com uma conta lojista para salvar horarios.");
+      const message = "Entre com uma conta lojista para salvar horários.";
+      setFeedback(message);
+      toast.error(message);
+      return;
+    }
+
+    const errors: Record<string, string> = {};
+    for (const hour of hours) {
+      if (!hour.enabled) {
+        continue;
+      }
+      if (!/^\d{2}:\d{2}$/.test(hour.opens_at) || !/^\d{2}:\d{2}$/.test(hour.closes_at)) {
+        errors[hour.day] = "Informe horários no formato HH:mm.";
+      } else if (hour.closes_at <= hour.opens_at) {
+        errors[hour.day] = "O fechamento deve ser maior que a abertura.";
+      }
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      toast.error(Object.values(errors)[0]);
       return;
     }
 
@@ -73,9 +97,12 @@ export function StoreHoursScreen() {
     try {
       const settings = await updateSellerSettings(session.accessToken, { hours });
       setHours(settings.hours);
-      setFeedback("Horarios atualizados.");
+      setFeedback("Horários atualizados.");
+      toast.success("Horários atualizados.");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel salvar horarios.");
+      const message = error instanceof Error ? error.message : "Não foi possível salvar horários.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -88,7 +115,7 @@ export function StoreHoursScreen() {
           <Link aria-label="Voltar para loja" className="grid h-10 w-10 place-items-center text-[#111317]" href="/store/profile">
             <FaArrowLeft aria-hidden="true" />
           </Link>
-          <strong className="text-sm font-black">Horarios</strong>
+          <strong className="text-sm font-black">Horários</strong>
           <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
             <FaClock aria-hidden="true" />
           </span>
@@ -96,7 +123,7 @@ export function StoreHoursScreen() {
 
         <section className="grid gap-5 px-6 py-6">
           <div className="rounded-[8px] bg-[#102017] p-5 text-white">
-            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Operacao real</span>
+            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Operação real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">Atendimento semanal</h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
               Configure quando a loja recebe pedidos e aparece como aberta.
@@ -123,8 +150,8 @@ export function StoreHoursScreen() {
                     <span className="text-xs font-black text-[#4b5563]">Abre</span>
                     <input
                       className="h-11 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-3 text-sm font-bold outline-0"
-                      onChange={(event) => updateHour(hour.day, { opens_at: event.target.value })}
-                      type="time"
+                      onChange={(event) => updateHour(hour.day, { opens_at: maskTime(event.target.value) })}
+                      inputMode="numeric"
                       value={hour.opens_at}
                     />
                   </label>
@@ -132,12 +159,15 @@ export function StoreHoursScreen() {
                     <span className="text-xs font-black text-[#4b5563]">Fecha</span>
                     <input
                       className="h-11 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-3 text-sm font-bold outline-0"
-                      onChange={(event) => updateHour(hour.day, { closes_at: event.target.value })}
-                      type="time"
+                      onChange={(event) => updateHour(hour.day, { closes_at: maskTime(event.target.value) })}
+                      inputMode="numeric"
                       value={hour.closes_at}
                     />
                   </label>
                 </div>
+                {fieldErrors[hour.day] ? (
+                  <p className="mt-3 text-xs font-black text-[#dc2626]">{fieldErrors[hour.day]}</p>
+                ) : null}
               </section>
             ))}
 
@@ -153,7 +183,7 @@ export function StoreHoursScreen() {
               type="submit"
             >
               {submitting ? <FaCheckCircle aria-hidden="true" /> : <FaSave aria-hidden="true" />}
-              {submitting ? "Salvando..." : "Salvar horarios"}
+              {submitting ? "Salvando..." : "Salvar horários"}
             </button>
           </form>
         </section>

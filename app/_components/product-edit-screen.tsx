@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaCheckCircle, FaEdit, FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { AuthPhone } from "./auth-shell";
+import { productSchema, zodErrors } from "./form-schemas";
+import { maskCurrencyBRL, maskUf } from "./masks";
 import {
   getSellerProduct,
   getSellerSession,
@@ -16,9 +19,9 @@ import {
 const productTypes: Array<{ id: SellerProductPayload["type"]; label: string; category: string; subcategory: string }> = [
   { id: "food", label: "Delivery", category: "delivery", subcategory: "food" },
   { id: "fashion", label: "Moda", category: "marketplace", subcategory: "fashion" },
-  { id: "service", label: "Servico", category: "services", subcategory: "local-service" },
-  { id: "vehicle", label: "Veiculo", category: "classifieds", subcategory: "vehicle" },
-  { id: "real_estate", label: "Imovel", category: "classifieds", subcategory: "real-estate" },
+  { id: "service", label: "Serviço", category: "services", subcategory: "local-service" },
+  { id: "vehicle", label: "Veículo", category: "classifieds", subcategory: "vehicle" },
+  { id: "real_estate", label: "Imóvel", category: "classifieds", subcategory: "real-estate" },
 ];
 
 function normalizeType(value: string): SellerProductPayload["type"] {
@@ -34,7 +37,7 @@ function defaultAttributes(type: SellerProductPayload["type"], title: string, pr
     fashion: { color: "A definir", condition: "novo", gender: "unissex", size: "unico" },
     food: { availability: "diaria", preparation_time: "45 min", store: "Loja Suwave" },
     real_estate: { area: "0 m2", bathrooms: "1", bedrooms: "1", operation: "venda", property_type: "casa" },
-    service: { availability: "com agendamento", base_price: price, service_area: title || "Servico local" },
+    service: { availability: "com agendamento", base_price: price, service_area: title || "Serviço local" },
     vehicle: {
       brand: "A definir",
       color: "A definir",
@@ -85,6 +88,7 @@ export function ProductEditScreen() {
   const [city, setCity] = useState("Sinop");
   const [currentProduct, setCurrentProduct] = useState<SellerProduct | null>(null);
   const [description, setDescription] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"category" | "price" | "stock" | "title", string>>>({});
   const [feedback, setFeedback] = useState("");
   const [price, setPrice] = useState("");
   const [state, setState] = useState("MT");
@@ -123,7 +127,9 @@ export function ProductEditScreen() {
       })
       .catch((error) => {
         if (active) {
-          setFeedback(error instanceof Error ? error.message : "Nao foi possivel carregar o produto.");
+          const message = error instanceof Error ? error.message : "Não foi possível carregar o produto.";
+          setFeedback(message);
+          toast.error(message);
         }
       });
 
@@ -136,7 +142,23 @@ export function ProductEditScreen() {
     event.preventDefault();
     const session = getSellerSession();
     if (!session?.accessToken) {
-      setFeedback("Entre com uma conta lojista para editar o produto.");
+      const message = "Entre com uma conta lojista para editar o produto.";
+      setFeedback(message);
+      toast.error(message);
+      return;
+    }
+
+    setFieldErrors({});
+    const parsed = productSchema.safeParse({
+      category: type,
+      price,
+      stock: stock.trim() ? stock : "0",
+      title,
+    });
+    if (!parsed.success) {
+      const errors = zodErrors<"category" | "price" | "stock" | "title">(parsed.error);
+      setFieldErrors(errors);
+      toast.error(Object.values(errors)[0] ?? "Revise os campos do produto.");
       return;
     }
 
@@ -159,8 +181,11 @@ export function ProductEditScreen() {
       });
       setCurrentProduct(product);
       setFeedback(`Produto atualizado: ${product.title}`);
+      toast.success(`Produto atualizado: ${product.title}`);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Nao foi possivel editar o produto.");
+      const message = error instanceof Error ? error.message : "Não foi possível editar o produto.";
+      setFeedback(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -181,12 +206,12 @@ export function ProductEditScreen() {
 
         <section className="grid gap-5 px-6 py-6">
           <div className="rounded-[8px] bg-[#102017] p-5 text-white">
-            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Catalogo real</span>
+            <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Catálogo real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">
               {title || "Editar item"}
             </h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
-              Atualize preco, estoque, status e dados principais do anuncio.
+              Atualize preço, estoque, status e dados principais do anúncio.
             </p>
           </div>
 
@@ -206,35 +231,40 @@ export function ProductEditScreen() {
               </select>
             </label>
 
-            <Field label="Titulo" onChange={setTitle} placeholder="Pizza grande promocional" required value={title} />
+            <Field label="Título" onChange={setTitle} placeholder="Pizza grande promocional" value={title} />
+            {fieldErrors.title ? <small className="-mt-2 text-xs font-bold text-[#dc2626]">{fieldErrors.title}</small> : null}
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Descricao</span>
+              <span className="text-xs font-black text-[#4b5563]">Descrição</span>
               <textarea
                 className="min-h-24 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 py-3 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Detalhes do produto, preparo, condicao ou disponibilidade"
-                required
+                placeholder="Detalhes do produto, preparo, condição ou disponibilidade"
                 value={description}
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Preco" onChange={setPrice} placeholder="R$ 49,90" required value={price} />
+              <Field label="Preço" onChange={(value) => setPrice(maskCurrencyBRL(value))} placeholder="R$ 49,90" value={price} />
               <Field label="Estoque" onChange={setStock} placeholder="1" type="number" value={stock} />
             </div>
+            {fieldErrors.price || fieldErrors.stock ? (
+              <small className="-mt-2 text-xs font-bold text-[#dc2626]">
+                {fieldErrors.price ?? fieldErrors.stock}
+              </small>
+            ) : null}
             <div className="grid grid-cols-[1fr_86px] gap-3">
-              <Field label="Cidade" onChange={setCity} required value={city} />
-              <Field label="UF" onChange={(value) => setState(value.slice(0, 2).toUpperCase())} required value={state} />
+              <Field label="Cidade" onChange={setCity} value={city} />
+              <Field label="UF" onChange={(value) => setState(maskUf(value))} value={state} />
             </div>
 
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Publicacao</span>
+              <span className="text-xs font-black text-[#4b5563]">Publicação</span>
               <select
                 className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0"
                 onChange={(event) => setStatus(event.target.value as SellerProductPayload["status"])}
                 value={status}
               >
                 <option value="draft">Rascunho</option>
-                <option value="pending_review">Enviar para revisao</option>
+                <option value="pending_review">Enviar para revisão</option>
                 <option value="published">Publicado</option>
                 <option value="paused">Pausado</option>
               </select>
@@ -252,7 +282,7 @@ export function ProductEditScreen() {
               type="submit"
             >
               {submitting ? <FaCheckCircle aria-hidden="true" /> : <FaSave aria-hidden="true" />}
-              {submitting ? "Salvando..." : "Salvar alteracoes"}
+              {submitting ? "Salvando..." : "Salvar alterações"}
             </button>
           </form>
         </section>

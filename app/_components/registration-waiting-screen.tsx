@@ -1,7 +1,10 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import { Building2, Check, LogOut, MailCheck, Search } from "lucide-react";
+import { toast } from "react-toastify";
 
 function SuwaveLogo() {
   return (
@@ -79,6 +82,7 @@ export function RegistrationWaitingScreen() {
           <Link
             className="mt-auto inline-flex h-[66px] w-full max-w-[500px] items-center justify-center gap-5 rounded-[9px] border-2 border-[#f6bd14] bg-white px-10 text-[20px] font-black text-[#111111] no-underline transition hover:bg-[#fff8e8]"
             href="/"
+            onClick={() => toast.info("Você saiu da etapa de cadastro.")}
           >
             <LogOut aria-hidden="true" className="h-7 w-7" strokeWidth={2.6} />
             Sair
