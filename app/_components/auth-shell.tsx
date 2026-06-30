@@ -11,6 +11,7 @@ import {
   FaLock,
   FaWhatsapp,
 } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import { maskWhatsapp } from "./masks";
 import {
   checkSellerAccountAvailability,
@@ -18,7 +19,6 @@ import {
   loginSeller,
   registerSeller,
 } from "./seller-api";
-import { SuwaveSplash, SuwaveWordmark } from "./suwave-wordmark";
 
 function DeviceStatusBar() {
   return (
@@ -50,27 +50,11 @@ export function AuthPhone({ children, splash }: { children: ReactNode; splash?: 
   );
 }
 
-function BrandSplash() {
-  return (
-    <section className="grid min-h-[322px] content-center overflow-hidden bg-white px-7 pb-4 pt-10 text-[#050505]">
-      <div className="grid justify-items-center gap-3">
-        <SuwaveWordmark subtitle="LOGISTA" />
-        <p className="max-w-[280px] text-center text-[13px] font-bold leading-5 text-[#68707b]">
-          Gestão rápida para vender, acompanhar pedidos e controlar sua loja.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function LoginSplashOverlay() {
-  return <SuwaveSplash subtitle="LOGISTA" />;
-}
-
 export function LoginScreen() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,80 +74,98 @@ export function LoginScreen() {
   }
 
   return (
-    <AuthPhone splash={<LoginSplashOverlay />}>
-      <div className="h-[calc(100%-58px)] overflow-y-auto bg-white pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <BrandSplash />
-        <section className="-mt-7 grid gap-5 rounded-t-[32px] bg-white px-6 pb-8 pt-7">
-          <header>
-            <span className="text-[11px] font-black uppercase tracking-normal text-[#078323]">
-              Acesso do lojista
+    <main className="min-h-screen bg-[#f7f7f6] px-6 text-[#050505]">
+      <section className="mx-auto flex min-h-screen w-full max-w-[390px] flex-col items-stretch pt-[106px]">
+        <header className="text-center">
+          <Link aria-label="Suwave logista" className="inline-grid justify-items-center text-inherit no-underline" href="/">
+            <span className="text-[43px] font-black leading-none tracking-normal text-[#050505]">
+              SU<span className="text-[#ffb000]">W</span>AVE
             </span>
-            <h2 className="mt-2 text-[26px] font-black leading-tight tracking-normal text-[#111317]">
-              Entre na sua loja
-            </h2>
-            <p className="mt-2 text-sm font-bold leading-5 text-[#5a616b]">
-              Use o e-mail ou WhatsApp cadastrado para acessar o painel.
+            <span className="mt-2 text-[13px] font-black uppercase leading-none tracking-[0.58em] text-[#111111]">
+              LOGISTA
+            </span>
+          </Link>
+          <h1 className="mt-[43px] text-[22px] font-black leading-tight tracking-normal text-[#111111]">
+            Bem-vindo de volta!
+          </h1>
+          <p className="mt-2 text-[15px] font-medium leading-6 text-[#777782]">
+            Faça login para acessar sua conta.
+          </p>
+        </header>
+
+        <form className="mt-[47px] grid gap-[27px]" onSubmit={handleSubmit}>
+          <label className="grid gap-3">
+            <span className="text-[14px] font-black leading-none text-[#111111]">E-mail</span>
+            <span className="flex h-[56px] items-center gap-[18px] rounded-[8px] border border-[#d4d4d4] bg-transparent px-[15px] text-[#7c7f88]">
+              <FaEnvelope aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
+              <input
+                className="min-w-0 flex-1 border-0 bg-transparent text-[16px] font-semibold text-[#111111] outline-0 placeholder:text-[#8d9099]"
+                onChange={(event) => setIdentifier(event.target.value)}
+                placeholder="Digite seu e-mail"
+                required
+                type="email"
+                value={identifier}
+              />
+            </span>
+          </label>
+
+          <label className="grid gap-3">
+            <span className="text-[14px] font-black leading-none text-[#111111]">Senha</span>
+            <span className="flex h-[56px] items-center gap-[18px] rounded-[8px] border border-[#d4d4d4] bg-transparent px-[15px] text-[#7c7f88]">
+              <FaLock aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
+              <input
+                className="min-w-0 flex-1 border-0 bg-transparent text-[16px] font-semibold text-[#111111] outline-0 placeholder:text-[#8d9099]"
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Digite sua senha"
+                required
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <button
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#747781] transition hover:bg-[#eeeeec]"
+                onClick={() => setShowPassword((current) => !current)}
+                type="button"
+              >
+                {showPassword ? (
+                  <EyeOff aria-hidden="true" className="h-[21px] w-[21px]" strokeWidth={2.1} />
+                ) : (
+                  <Eye aria-hidden="true" className="h-[21px] w-[21px]" strokeWidth={2.1} />
+                )}
+              </button>
+            </span>
+          </label>
+
+          <Link
+            className="-mt-1 justify-self-end text-[14px] font-black leading-none text-[#ffb000] no-underline"
+            href="/forgot-password"
+          >
+            Esqueceu sua senha?
+          </Link>
+
+          {feedback ? (
+            <p className="-my-2 rounded-[8px] bg-[#fff7ed] px-3 py-2 text-xs font-black leading-5 text-[#9a3412]">
+              {feedback}
             </p>
-          </header>
+          ) : null}
 
-          <form className="grid gap-3" onSubmit={handleSubmit}>
-            <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">E-mail ou WhatsApp</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
-                <FaEnvelope className="text-[#078323]" aria-hidden="true" />
-                <input
-                  className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
-                  onChange={(event) => setIdentifier(event.target.value)}
-                  placeholder="vendedor@suwave.local"
-                  required
-                  value={identifier}
-                />
-              </div>
-            </label>
-            <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Senha</span>
-              <div className="flex h-12 items-center gap-3 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4">
-                <FaLock className="text-[#078323]" aria-hidden="true" />
-                <input
-                  className="min-w-0 flex-1 border-0 bg-transparent text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Sua senha"
-                  required
-                  type="password"
-                  value={password}
-                />
-              </div>
-            </label>
+          <button
+            className="mt-[3px] flex h-[63px] items-center justify-center rounded-[8px] bg-[#ffb000] px-8 text-[25px] font-black text-[#050505] shadow-none transition hover:bg-[#f7a900] disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={isSubmitting}
+            type="submit"
+          >
+            {isSubmitting ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
 
-            {feedback ? (
-              <p className="rounded-[8px] bg-[#fff7ed] px-3 py-2 text-xs font-black leading-5 text-[#9a3412]">
-                {feedback}
-              </p>
-            ) : null}
-
-            <button
-              className="mt-2 flex h-12 items-center justify-center rounded-[12px] bg-[#05b96e] text-sm font-black text-white no-underline shadow-[0_12px_20px_rgba(5,185,110,.22)]"
-              disabled={isSubmitting}
-              type="submit"
-            >
-              {isSubmitting ? "Entrando..." : "Entrar"}
-            </button>
-          </form>
-
-          <div className="grid gap-3">
-            <Link className="text-center text-xs font-black text-[#078323] no-underline" href="/forgot-password">
-              Esqueci minha senha
-            </Link>
-            <Link
-              className="flex h-11 items-center justify-center rounded-[12px] border border-[#e6e9ef] text-sm font-black text-[#111317] no-underline"
-              href="/register"
-            >
-              Criar conta lojista
-            </Link>
-          </div>
-        </section>
-      </div>
-    </AuthPhone>
+        <Link
+          className="mt-[18px] flex h-[56px] items-center justify-center rounded-[8px] border border-[#ffb000] bg-transparent px-8 text-[19px] font-bold text-[#171717] no-underline transition hover:bg-[#fff8e6]"
+          href="/register"
+        >
+          Cadastrar senha
+        </Link>
+      </section>
+    </main>
   );
 }
 
