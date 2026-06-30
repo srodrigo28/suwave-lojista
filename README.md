@@ -41,7 +41,7 @@ npm run build
 
 ## Commit e push
 
-Repositorio: `https://github.com/srodrigo28/suwave-logista.git`
+Repositorio: `https://github.com/srodrigo28/suwave-lojista.git`
 
 Fluxo:
 
