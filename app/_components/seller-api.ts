@@ -37,6 +37,8 @@ export type SellerSummary = {
 export type SellerProfile = {
   avatar_url: string | null;
   city: string | null;
+  complement: string | null;
+  district: string | null;
   description: string | null;
   email: string;
   full_name: string;
@@ -44,8 +46,10 @@ export type SellerProfile = {
   role: string;
   state: string | null;
   status: string;
+  street: string | null;
   store_name: string;
   whatsapp: string | null;
+  zip_code: string | null;
 };
 
 export type SellerProduct = {
@@ -357,7 +361,22 @@ export async function updateSellerProduct(token: string, productId: string, payl
 
 export async function updateSellerProfile(
   token: string,
-  payload: Partial<Pick<SellerProfile, "avatar_url" | "city" | "description" | "full_name" | "state" | "store_name" | "whatsapp">>,
+  payload: Partial<
+    Pick<
+      SellerProfile,
+      | "avatar_url"
+      | "city"
+      | "complement"
+      | "description"
+      | "district"
+      | "full_name"
+      | "state"
+      | "store_name"
+      | "street"
+      | "whatsapp"
+      | "zip_code"
+    >
+  > & { cep?: string },
 ) {
   return sellerRequest<SellerProfile>("/seller/profile", {
     body: JSON.stringify(payload),

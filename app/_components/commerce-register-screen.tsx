@@ -173,7 +173,8 @@ export function CommerceRegisterScreen() {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
-  const [address, setAddress] = useState("");
+  const [street, setStreet] = useState("");
+  const [complement, setComplement] = useState("");
   const [feedback, setFeedback] = useState("");
   const [cepFeedback, setCepFeedback] = useState("");
   const [isLoadingCep, setIsLoadingCep] = useState(false);
@@ -205,7 +206,7 @@ export function CommerceRegisterScreen() {
         setState(result.estado);
         setCity(result.cidade);
         setDistrict((current) => result.bairro || current);
-        setAddress((current) => result.rua || current);
+        setStreet((current) => result.rua || current);
       } catch (error) {
         if (!cancelled) {
           setCepFeedback(error instanceof Error ? error.message : "Não foi possível consultar o CEP agora.");
@@ -250,13 +251,15 @@ export function CommerceRegisterScreen() {
 
     try {
       const draft = {
-        address: address.trim(),
+        address: street.trim(),
         cep,
         city,
+        complement: complement.trim(),
         district: district.trim(),
         email: email.trim().toLowerCase(),
         phone,
         state,
+        street: street.trim(),
         updatedAt: new Date().toISOString(),
       };
       window.localStorage.setItem("suwave-logista-commerce-draft", JSON.stringify(draft));
@@ -265,7 +268,11 @@ export function CommerceRegisterScreen() {
       if (session?.accessToken) {
         await updateSellerProfile(session.accessToken, {
           city,
+          complement: complement.trim(),
+          district: district.trim(),
+          cep,
           state,
+          street: street.trim(),
           store_name: district.trim() || "Minha loja",
           whatsapp: onlyDigits(phone),
         });
@@ -370,15 +377,25 @@ export function CommerceRegisterScreen() {
               </Field>
             </div>
 
-            <Field label="Endereço completo">
-              <ShadInput
-                autoComplete="street-address"
-                onChange={(event) => setAddress(event.target.value)}
-                placeholder="Digite o endereço completo da sua loja"
-                required
-                value={address}
-              />
-            </Field>
+            <div className="grid gap-6 md:grid-cols-[1.1fr_.9fr]">
+              <Field label="Rua">
+                <ShadInput
+                  autoComplete="address-line1"
+                  onChange={(event) => setStreet(event.target.value)}
+                  placeholder="Digite a rua da sua loja"
+                  required
+                  value={street}
+                />
+              </Field>
+              <Field label="Complemento">
+                <ShadInput
+                  autoComplete="address-line2"
+                  onChange={(event) => setComplement(event.target.value)}
+                  placeholder="Sala, lote, quadra ou referência"
+                  value={complement}
+                />
+              </Field>
+            </div>
           </section>
 
           <section className="mt-6">
