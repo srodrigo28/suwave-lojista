@@ -22,3 +22,13 @@ export function maskWhatsapp(value: string) {
 
   return digits.replace(/(\d{2})(\d{5})(\d{1,4})/, "($1) $2-$3");
 }
+
+export function maskCep(value: string) {
+  const digits = onlyDigits(value).slice(0, 8);
+
+  if (digits.length <= 5) {
+    return digits;
+  }
+
+  return digits.replace(/(\d{5})(\d{1,3})/, "$1-$2");
+}

@@ -1,5 +1,5 @@
-import { RegisterScreen } from "../_components/auth-shell";
+import { CommerceRegisterScreen } from "../_components/commerce-register-screen";
 
 export default function Page() {
-  return <RegisterScreen />;
+  return <CommerceRegisterScreen />;
 }
