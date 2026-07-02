@@ -177,6 +177,8 @@ export function useSellerLivePage(page: SellerPage) {
     }
 
     let active = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza a sincronização com a API assim que a sessão é detectada
+    setState("loading");
     getSellerBundle(session.accessToken)
       .then((data) => {
         if (active) {

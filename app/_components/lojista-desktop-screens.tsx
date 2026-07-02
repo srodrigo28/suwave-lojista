@@ -93,8 +93,8 @@ const navGroups: NavItem[][] = [
 function SuwaveLogo() {
   return (
     <Link aria-label="Suwave" className="inline-flex text-inherit no-underline" href="/">
-      <span className="text-[48px] font-black leading-none tracking-normal text-[#050505]">
-        SU<span className="text-[#ffb000]">W</span>AVE
+      <span className="text-[48px] font-black leading-none tracking-normal text-ink">
+        SU<span className="text-brand">W</span>AVE
       </span>
     </Link>
   );
@@ -102,7 +102,7 @@ function SuwaveLogo() {
 
 function Sidebar({ active }: { active: DesktopShellProps["active"] }) {
   return (
-    <aside className="sticky top-0 h-screen w-[263px] shrink-0 border-r border-[#eeeeee] bg-white px-0 py-[34px]">
+    <aside className="sticky top-0 h-screen w-[263px] shrink-0 border-r border-line bg-surface px-0 py-[34px]">
       <div className="px-[28px]">
         <SuwaveLogo />
       </div>
@@ -110,7 +110,7 @@ function Sidebar({ active }: { active: DesktopShellProps["active"] }) {
       <nav className="mt-[43px] grid gap-[24px] px-[4px]">
         {navGroups.map((group, groupIndex) => (
           <div
-            className={`grid gap-[8px] ${groupIndex ? "border-t border-[#eeeeee] pt-[18px]" : ""}`}
+            className={`grid gap-[8px] ${groupIndex ? "border-t border-line pt-[18px]" : ""}`}
             key={group.map((item) => item.label).join("-")}
           >
             {group.map(({ href, icon: Icon, label }) => {
@@ -119,16 +119,16 @@ function Sidebar({ active }: { active: DesktopShellProps["active"] }) {
               return (
                 <Link
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative flex h-[46px] items-center gap-[24px] rounded-[8px] px-[26px] text-[16px] font-black no-underline transition ${
-                    isActive ? "bg-[#fff4da] text-[#050505]" : "text-[#111111] hover:bg-[#fafafa]"
+                  className={`press relative flex h-[46px] items-center gap-[24px] rounded-[8px] px-[26px] text-[16px] font-black no-underline transition ${
+                    isActive ? "bg-brand-soft text-ink" : "text-ink hover:translate-x-[2px] hover:bg-surface-2"
                   }`}
                   href={href}
                   key={label}
                 >
-                  {isActive ? <span className="absolute left-0 top-2 h-[30px] w-[2px] bg-[#ffb000]" /> : null}
+                  {isActive ? <span className="absolute left-0 top-2 h-[30px] w-[2px] bg-brand" /> : null}
                   <Icon
                     aria-hidden="true"
-                    className={isActive ? "h-[22px] w-[22px] text-[#ffb000]" : "h-[22px] w-[22px] text-[#050505]"}
+                    className={isActive ? "h-[22px] w-[22px] text-brand" : "h-[22px] w-[22px] text-ink"}
                     strokeWidth={2.15}
                   />
                   <span className="whitespace-nowrap">{label}</span>
@@ -144,25 +144,25 @@ function Sidebar({ active }: { active: DesktopShellProps["active"] }) {
 
 function Topbar() {
   return (
-    <header className="relative flex h-[100px] shrink-0 items-center justify-center border-b border-[#eeeeee] bg-white">
+    <header className="relative flex h-[100px] shrink-0 items-center justify-center border-b border-line bg-surface">
       <button
         aria-label="Loja ativada"
-        className="flex h-[50px] items-center gap-[11px] rounded-[9px] border border-[#e2e2e2] bg-white px-[16px] text-[17px] font-black text-[#111111]"
+        className="press flex h-[50px] items-center gap-[11px] rounded-[9px] border border-line bg-surface px-[16px] text-[17px] font-black text-ink hover:border-line-strong hover:shadow-[0_6px_16px_rgba(0,0,0,.06)]"
         type="button"
       >
-        <span className="relative h-[27px] w-[48px] rounded-full bg-[#e5e5e5]">
-          <span className="absolute left-[3px] top-[3px] h-[21px] w-[21px] rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,.16)]" />
+        <span className="relative h-[27px] w-[48px] rounded-full bg-line transition-colors">
+          <span className="absolute left-[3px] top-[3px] h-[21px] w-[21px] rounded-full bg-surface shadow-[0_1px_4px_rgba(0,0,0,.16)] transition-transform duration-300" />
         </span>
         Loja Ativada
       </button>
 
       <Link
         aria-label="Notificações"
-        className="absolute right-[31px] top-[34px] grid h-[42px] w-[42px] place-items-center text-[#050505] no-underline"
+        className="press absolute right-[31px] top-[34px] grid h-[42px] w-[42px] place-items-center text-ink no-underline"
         href="/orders"
       >
         <Bell aria-hidden="true" className="h-[29px] w-[29px]" strokeWidth={2.1} />
-        <span className="absolute right-[1px] top-[-2px] grid h-[23px] min-w-[23px] place-items-center rounded-full bg-[#ff2b2b] px-[6px] text-[12px] font-black leading-none text-white">
+        <span className="badge-pulse absolute right-[1px] top-[-2px] grid h-[23px] min-w-[23px] place-items-center rounded-full bg-danger px-[6px] text-[12px] font-black leading-none text-white">
           3
         </span>
       </Link>
@@ -172,7 +172,7 @@ function Topbar() {
 
 function LojistaDesktopShell({ active, children }: DesktopShellProps) {
   return (
-    <main className="min-h-screen overflow-x-auto bg-white text-[#050505]">
+    <main className="min-h-screen overflow-x-auto bg-surface text-ink">
       <div className="flex min-h-screen min-w-[1280px]">
         <Sidebar active={active} />
         <section className="flex min-h-screen flex-1 flex-col">
@@ -210,7 +210,7 @@ const onboardingSteps = [
 function ProgressCircle({ index }: { index: number }) {
   if (index === 0) {
     return (
-      <span className="grid h-[88px] w-[88px] place-items-center rounded-full border border-[#28cc74] bg-white">
+      <span className="grid h-[88px] w-[88px] place-items-center rounded-full border border-[#28cc74] bg-surface">
         <span className="grid h-[43px] w-[43px] place-items-center rounded-full bg-[#22c55e] text-white">
           <Check aria-hidden="true" className="h-[30px] w-[30px]" strokeWidth={3} />
         </span>
@@ -220,8 +220,8 @@ function ProgressCircle({ index }: { index: number }) {
 
   return (
     <span
-      className={`grid h-[88px] w-[88px] place-items-center rounded-full bg-white text-[34px] font-medium text-[#050505] ${
-        index === 1 ? "border border-[#ffbd00]" : "border border-[#b8b8b8]"
+      className={`grid h-[88px] w-[88px] place-items-center rounded-full bg-surface text-[34px] font-medium text-ink ${
+        index === 1 ? "border border-brand" : "border border-[#b8b8b8]"
       }`}
     >
       {index + 1}
@@ -233,22 +233,22 @@ export function LojistaInicioScreen() {
   return (
     <LojistaDesktopShell active="inicio">
       <section className="flex-1 px-[72px] pb-[38px] pt-[75px]">
-        <h1 className="text-[38px] font-black leading-tight tracking-normal text-[#050505]">
+        <h1 className="anim-rise text-[38px] font-black leading-tight tracking-normal text-ink">
           Seja bem-vindo à Suwave!
         </h1>
-        <p className="mt-[18px] text-[19px] font-medium leading-7 text-[#3d4351]">
+        <p className="anim-rise anim-d1 mt-[18px] text-[19px] font-medium leading-7 text-ink-2">
           Falta muito pouco para sua loja começar a vender.
         </p>
-        <p className="mt-[8px] text-[19px] font-medium leading-7 text-[#3d4351]">
+        <p className="anim-rise anim-d2 mt-[8px] text-[19px] font-medium leading-7 text-ink-2">
           Conclua todas as etapas abaixo para ativar sua loja e alcançar mais clientes.
         </p>
 
-        <section className="mt-[50px] rounded-[10px] border border-[#e3e3e3] bg-white px-[19px] pb-[27px] pt-[30px]">
-          <h2 className="ml-[27px] text-[26px] font-black leading-tight text-[#050505]">
+        <section className="anim-rise anim-d3 mt-[50px] rounded-[10px] border border-line bg-surface px-[19px] pb-[27px] pt-[30px]">
+          <h2 className="ml-[27px] text-[26px] font-black leading-tight text-ink">
             Conclua todas as etapas antes de começar a vender
           </h2>
 
-          <div className="relative mt-[50px] grid grid-cols-5">
+          <div className="stagger relative mt-[50px] grid grid-cols-5">
             <span className="absolute left-[9.6%] right-[9.6%] top-[43px] h-[4px] bg-[#b8b8b8]" />
             <span className="absolute left-[9.6%] top-[43px] h-[4px] w-[10.2%] bg-[#22c55e]" />
 
@@ -261,10 +261,10 @@ export function LojistaInicioScreen() {
               const content = (
                 <>
                 <ProgressCircle index={index} />
-                <h3 className="mt-[25px] text-[17px] font-black leading-tight text-[#050505]">
+                <h3 className="mt-[25px] text-[17px] font-black leading-tight text-ink">
                   {index + 1}. {step.title}
                 </h3>
-                <p className="mt-[15px] max-w-[190px] text-[15px] font-medium leading-[1.7] text-[#424653]">
+                <p className="mt-[15px] max-w-[190px] text-[15px] font-medium leading-[1.7] text-ink-2">
                   {step.description}
                 </p>
                 </>
@@ -286,32 +286,32 @@ export function LojistaInicioScreen() {
             })}
           </div>
 
-          <section className="mt-[58px] flex min-h-[94px] items-center gap-[20px] rounded-[8px] border border-[#f4d789] bg-[#fffdf9] px-[20px]">
-            <span className="grid h-[56px] w-[56px] shrink-0 place-items-center rounded-full bg-[#ffb000] text-white">
+          <section className="anim-rise anim-d5 hover-lift mt-[58px] flex min-h-[94px] items-center gap-[20px] rounded-[8px] border border-[#f4d789] bg-brand-soft px-[20px]">
+            <span className="grid h-[56px] w-[56px] shrink-0 place-items-center rounded-full bg-brand text-white">
               <Star aria-hidden="true" className="h-[31px] w-[31px]" strokeWidth={2.3} />
             </span>
             <div>
               <h3 className="text-[20px] font-black leading-tight">Dica Suwave</h3>
-              <p className="mt-[8px] text-[16px] font-medium text-[#333946]">
+              <p className="mt-[8px] text-[16px] font-medium text-ink-2">
                 Lojas completas têm mais visibilidade, conquistam mais clientes e vendem muito mais!
               </p>
             </div>
           </section>
 
-          <section className="mt-[33px] flex min-h-[110px] items-center justify-between gap-[24px] rounded-[8px] border border-[#e3e3e3] bg-white px-[18px]">
+          <section className="anim-rise anim-d6 hover-lift mt-[33px] flex min-h-[110px] items-center justify-between gap-[24px] rounded-[8px] border border-line bg-surface px-[18px]">
             <div className="flex items-center gap-[20px]">
-              <span className="grid h-[58px] w-[58px] shrink-0 place-items-center rounded-full border border-[#e6e6e6] bg-[#f9f9f9] text-[#b8b8b8]">
+              <span className="grid h-[58px] w-[58px] shrink-0 place-items-center rounded-full border border-line bg-surface-2 text-[#b8b8b8]">
                 <Lock aria-hidden="true" className="h-[26px] w-[26px]" strokeWidth={2.2} />
               </span>
               <div>
                 <h3 className="text-[19px] font-black leading-tight">Complete todas as etapas para liberar sua loja.</h3>
-                <p className="mt-[12px] text-[15px] font-medium text-[#4b4f5c]">
+                <p className="mt-[12px] text-[15px] font-medium text-ink-2">
                   Após concluir todas as etapas, o botão abaixo será liberado para você começar a vender.
                 </p>
               </div>
             </div>
             <button
-              className="flex h-[58px] min-w-[234px] items-center justify-center gap-[14px] rounded-[8px] bg-[#eeeeee] px-[24px] text-[18px] font-black text-[#9b9b9b]"
+              className="press flex h-[58px] min-w-[234px] items-center justify-center gap-[14px] rounded-[8px] bg-line px-[24px] text-[18px] font-black text-[#9b9b9b]"
               onClick={() => toast.info("Complete todas as etapas para liberar sua loja.")}
               type="button"
             >
@@ -348,24 +348,29 @@ const scheduleRows = [
 
 function ProfileInfoCard({
   icon: Icon,
+  isOpen,
   onClick,
   subtitle,
   title,
-}: (typeof profileCards)[number] & { onClick?: () => void }) {
+}: (typeof profileCards)[number] & { isOpen?: boolean; onClick?: () => void }) {
   return (
     <button
-      className="flex h-[91px] w-full items-center rounded-[8px] border border-[#e5e5e5] bg-white px-[23px] text-left"
+      className="press flex h-[91px] w-full items-center rounded-[8px] border border-line bg-surface px-[23px] text-left hover:border-line-strong hover:bg-brand-soft"
       onClick={onClick}
       type="button"
     >
-      <span className="grid h-[47px] w-[47px] shrink-0 place-items-center rounded-[10px] bg-[#fff3d8] text-[#8a6410]">
+      <span className="grid h-[47px] w-[47px] shrink-0 place-items-center rounded-[10px] bg-brand-soft text-warning">
         <Icon aria-hidden="true" className="h-[27px] w-[27px]" strokeWidth={2.1} />
       </span>
       <span className="ml-[30px] min-w-0 flex-1">
-        <strong className="block text-[18px] font-black leading-tight text-[#050505]">{title}</strong>
-        <small className="mt-[8px] block truncate text-[14px] font-medium text-[#262d3c]">{subtitle}</small>
+        <strong className="block text-[18px] font-black leading-tight text-ink">{title}</strong>
+        <small className="mt-[8px] block truncate text-[14px] font-medium text-ink-2">{subtitle}</small>
       </span>
-      <ChevronDown aria-hidden="true" className="h-[25px] w-[25px] text-[#050505]" strokeWidth={2.4} />
+      <ChevronDown
+        aria-hidden="true"
+        className={`h-[25px] w-[25px] text-ink transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        strokeWidth={2.4}
+      />
     </button>
   );
 }
@@ -468,91 +473,92 @@ export function LojistaPerfilScreen() {
   return (
     <LojistaDesktopShell active="perfil">
       <section className="flex-1 px-[23px] pb-[32px] pt-[26px]">
-        <header className="flex items-center gap-[27px] pl-[22px]">
+        <header className="anim-rise flex items-center gap-[27px] pl-[22px]">
           <button
-            className="grid h-[138px] w-[138px] shrink-0 place-items-center rounded-full border border-dashed border-[#cfd3da] bg-[#fbfbfb] text-[#2e3440]"
+            className="press grid h-[138px] w-[138px] shrink-0 place-items-center rounded-full border border-dashed border-line-strong bg-surface-2 text-ink hover:border-brand hover:bg-brand-soft"
             type="button"
           >
             <span className="grid justify-items-center">
-              <Camera aria-hidden="true" className="h-[34px] w-[34px] text-[#727784]" strokeWidth={2.2} />
+              <Camera aria-hidden="true" className="h-[34px] w-[34px] text-ink-3" strokeWidth={2.2} />
               <span className="mt-[10px] text-[14px] font-bold">Adicionar logo</span>
             </span>
           </button>
 
           <div className="pt-[6px]">
             <div className="flex items-center gap-[18px]">
-              <h1 className="text-[31px] font-black leading-tight tracking-normal text-[#050505]">{storeName}</h1>
+              <h1 className="text-[31px] font-black leading-tight tracking-normal text-ink">{storeName}</h1>
               <button
                 aria-label="Editar nome fantasia"
-                className="grid h-[29px] w-[29px] place-items-center rounded-full bg-[#fff8e7] text-[#ffb000]"
+                className="grid h-[29px] w-[29px] place-items-center rounded-full bg-brand-soft text-brand"
                 type="button"
               >
                 <Pencil aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.1} />
               </button>
             </div>
-            <p className="mt-[10px] text-[16px] font-medium text-[#283044]">Nome fantasia</p>
-            <p className="mt-[18px] flex items-center gap-[13px] text-[16px] font-medium text-[#283044]">
-              <MapPin aria-hidden="true" className="h-[20px] w-[20px] text-[#050505]" strokeWidth={2.25} />
+            <p className="mt-[10px] text-[16px] font-medium text-ink-2">Nome fantasia</p>
+            <p className="mt-[18px] flex items-center gap-[13px] text-[16px] font-medium text-ink-2">
+              <MapPin aria-hidden="true" className="h-[20px] w-[20px] text-ink" strokeWidth={2.25} />
               Avenida Alameda 174, Sinop - MT, 78550-000
             </p>
           </div>
         </header>
 
-        <div className="mt-[4px] grid grid-cols-[minmax(520px,562px)_minmax(540px,1fr)] gap-[23px]">
+        <div className="stagger mt-[4px] grid grid-cols-[minmax(520px,562px)_minmax(540px,1fr)] gap-[23px]">
           <section>
             <div className="grid gap-0">
               {profileCards.map((card) => (
                 <div key={card.title}>
                   <ProfileInfoCard
                     icon={card.icon}
+                    isOpen={activePanel === card.title}
                     onClick={() => setActivePanel((current) => (current === card.title ? null : card.title))}
                     subtitle={card.subtitle}
                     title={card.title}
                   />
                   {activePanel === card.title ? (
-                    <div className="grid gap-3 border-x border-[#e5e5e5] bg-[#fffdf8] px-[23px] py-4">
+                    <div className="anim-rise grid gap-3 border-x border-line bg-brand-soft px-[23px] py-4">
                       {card.title === "Dados comerciais" ? (
                         <>
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.email ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setEmail(event.target.value)} placeholder="E-mail" value={email} />
-                          {fieldErrors.email ? <small className="font-bold text-[#dc2626]">{fieldErrors.email}</small> : null}
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.whatsapp ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setWhatsapp(maskWhatsapp(event.target.value))} placeholder="Telefone" value={whatsapp} />
-                          {fieldErrors.whatsapp ? <small className="font-bold text-[#dc2626]">{fieldErrors.whatsapp}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.email ? "border-danger" : "border-line"}`} onChange={(event) => setEmail(event.target.value)} placeholder="E-mail" value={email} />
+                          {fieldErrors.email ? <small className="font-bold text-danger">{fieldErrors.email}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.whatsapp ? "border-danger" : "border-line"}`} onChange={(event) => setWhatsapp(maskWhatsapp(event.target.value))} placeholder="Telefone" value={whatsapp} />
+                          {fieldErrors.whatsapp ? <small className="font-bold text-danger">{fieldErrors.whatsapp}</small> : null}
                         </>
                       ) : null}
                       {card.title === "Endereço da loja" ? (
                         <>
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cep ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setCep(maskCep(event.target.value))} placeholder="CEP" value={cep} />
-                          {fieldErrors.cep ? <small className="font-bold text-[#dc2626]">{fieldErrors.cep}</small> : null}
-                          {isCepLoading ? <small className="font-bold text-[#8a6410]">Consultando CEP...</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cep ? "border-danger" : "border-line"}`} onChange={(event) => setCep(maskCep(event.target.value))} placeholder="CEP" value={cep} />
+                          {fieldErrors.cep ? <small className="font-bold text-danger">{fieldErrors.cep}</small> : null}
+                          {isCepLoading ? <small className="font-bold text-warning">Consultando CEP...</small> : null}
                           <div className="grid grid-cols-[1fr_90px] gap-3">
-                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setStreet(event.target.value)} placeholder="Rua" value={street} />
-                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setNumber(event.target.value)} placeholder="Número" value={number} />
+                            <input className="h-11 rounded-[8px] border border-line px-3 text-sm font-bold outline-0" onChange={(event) => setStreet(event.target.value)} placeholder="Rua" value={street} />
+                            <input className="h-11 rounded-[8px] border border-line px-3 text-sm font-bold outline-0" onChange={(event) => setNumber(event.target.value)} placeholder="Número" value={number} />
                           </div>
                           <div className="grid grid-cols-[1fr_1fr_70px] gap-3">
-                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setNeighborhood(event.target.value)} placeholder="Bairro" value={neighborhood} />
-                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setCity(event.target.value)} placeholder="Cidade" value={city} />
-                            <input className="h-11 rounded-[8px] border border-[#e5e5e5] px-3 text-sm font-bold outline-0" onChange={(event) => setState(maskUf(event.target.value))} placeholder="UF" value={state} />
+                            <input className="h-11 rounded-[8px] border border-line px-3 text-sm font-bold outline-0" onChange={(event) => setNeighborhood(event.target.value)} placeholder="Bairro" value={neighborhood} />
+                            <input className="h-11 rounded-[8px] border border-line px-3 text-sm font-bold outline-0" onChange={(event) => setCity(event.target.value)} placeholder="Cidade" value={city} />
+                            <input className="h-11 rounded-[8px] border border-line px-3 text-sm font-bold outline-0" onChange={(event) => setState(maskUf(event.target.value))} placeholder="UF" value={state} />
                           </div>
                         </>
                       ) : null}
                       {card.title === "Dados do sócio" ? (
                         <>
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerName ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setOwnerName(event.target.value)} placeholder="Nome do representante" value={ownerName} />
-                          {fieldErrors.ownerName ? <small className="font-bold text-[#dc2626]">{fieldErrors.ownerName}</small> : null}
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerPhone ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setOwnerPhone(maskWhatsapp(event.target.value))} placeholder="Telefone do representante" value={ownerPhone} />
-                          {fieldErrors.ownerPhone ? <small className="font-bold text-[#dc2626]">{fieldErrors.ownerPhone}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerName ? "border-danger" : "border-line"}`} onChange={(event) => setOwnerName(event.target.value)} placeholder="Nome do representante" value={ownerName} />
+                          {fieldErrors.ownerName ? <small className="font-bold text-danger">{fieldErrors.ownerName}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.ownerPhone ? "border-danger" : "border-line"}`} onChange={(event) => setOwnerPhone(maskWhatsapp(event.target.value))} placeholder="Telefone do representante" value={ownerPhone} />
+                          {fieldErrors.ownerPhone ? <small className="font-bold text-danger">{fieldErrors.ownerPhone}</small> : null}
                         </>
                       ) : null}
                       {card.title === "Informação da loja" ? (
                         <>
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.storeName ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setStoreName(event.target.value)} placeholder="Nome fantasia" value={storeName} />
-                          {fieldErrors.storeName ? <small className="font-bold text-[#dc2626]">{fieldErrors.storeName}</small> : null}
-                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cnpj ? "border-[#ef4444]" : "border-[#e5e5e5]"}`} onChange={(event) => setCnpj(maskCnpj(event.target.value))} placeholder="CNPJ" value={cnpj} />
-                          {fieldErrors.cnpj ? <small className="font-bold text-[#dc2626]">{fieldErrors.cnpj}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.storeName ? "border-danger" : "border-line"}`} onChange={(event) => setStoreName(event.target.value)} placeholder="Nome fantasia" value={storeName} />
+                          {fieldErrors.storeName ? <small className="font-bold text-danger">{fieldErrors.storeName}</small> : null}
+                          <input className={`h-11 rounded-[8px] border px-3 text-sm font-bold outline-0 ${fieldErrors.cnpj ? "border-danger" : "border-line"}`} onChange={(event) => setCnpj(maskCnpj(event.target.value))} placeholder="CNPJ" value={cnpj} />
+                          {fieldErrors.cnpj ? <small className="font-bold text-danger">{fieldErrors.cnpj}</small> : null}
                         </>
                       ) : (
                         card.title === "Dados bancários" || card.title === "Formas de pagamento" ? (
-                          <p className="text-sm font-bold text-[#4b5563]">Configuração disponível em breve. O perfil pode ser salvo com os dados atuais.</p>
+                          <p className="text-sm font-bold text-ink-2">Configuração disponível em breve. O perfil pode ser salvo com os dados atuais.</p>
                         ) : null
                       )}
                     </div>
@@ -561,17 +567,17 @@ export function LojistaPerfilScreen() {
               ))}
             </div>
 
-            <section className="rounded-[8px] border border-[#e5e5e5] bg-white px-[23px] pb-[19px] pt-[18px]">
-              <h2 className="text-[16px] font-black leading-tight text-[#050505]">Selecione uma categoria abaixo</h2>
+            <section className="rounded-[8px] border border-line bg-surface px-[23px] pb-[19px] pt-[18px]">
+              <h2 className="text-[16px] font-black leading-tight text-ink">Selecione uma categoria abaixo</h2>
               <div className="mt-[17px] grid grid-cols-4 gap-[14px]">
                 {categories.map((categoryOption) => (
                   <button
-                    className={`relative grid h-[87px] place-items-end justify-items-center rounded-[7px] border bg-white px-[10px] pb-[19px] text-[14px] font-medium text-[#050505] ${
+                    className={`press grid h-[87px] grid-rows-[auto_1fr] gap-[6px] rounded-[7px] border bg-surface px-[10px] pb-[17px] pt-[13px] text-[13px] font-medium leading-tight text-ink hover:border-brand/60 ${
                       fieldErrors.category
-                        ? "border-[#ef4444]"
+                        ? "border-danger"
                         : category === categoryOption
-                          ? "border-[#ffb000]"
-                          : "border-[#e5e5e5]"
+                          ? "border-brand"
+                          : "border-line"
                     }`}
                     key={categoryOption}
                     onClick={() => {
@@ -580,36 +586,38 @@ export function LojistaPerfilScreen() {
                     }}
                     type="button"
                   >
-                    <span className="absolute right-[13px] top-[13px] grid h-[17px] w-[17px] place-items-center rounded-full border-2 border-[#8e94a1]">
-                      {category === categoryOption ? <span className="h-[7px] w-[7px] rounded-full bg-[#ffb000]" /> : null}
+                    <span className="grid h-[17px] w-[17px] place-items-center justify-self-end rounded-full border-2 border-[#8e94a1]">
+                      {category === categoryOption ? <span className="h-[7px] w-[7px] rounded-full bg-brand" /> : null}
                     </span>
-                    {categoryOption}
+                    <span className="self-end text-center">{categoryOption}</span>
                   </button>
                 ))}
               </div>
-              {fieldErrors.category ? (
-                <p className="mt-[18px] text-[14px] font-black text-[#ff2b2b]">{fieldErrors.category}</p>
+              {!category || fieldErrors.category ? (
+                <p className="mt-[18px] text-[14px] font-black text-danger">
+                  {fieldErrors.category ?? "Essa seleção é obrigatória."}
+                </p>
               ) : null}
             </section>
           </section>
 
           <section className="grid content-start gap-[20px]">
-            <section className="rounded-[8px] border border-[#e5e5e5] bg-white px-[30px] pb-[24px] pt-[26px]">
+            <section className="rounded-[8px] border border-line bg-surface px-[30px] pb-[24px] pt-[26px]">
               <header className="flex items-center justify-between">
                 <div className="flex items-center gap-[16px]">
-                  <span className="grid h-[33px] w-[33px] place-items-center rounded-full bg-[#fff4dc] text-[#ffb000]">
+                  <span className="grid h-[33px] w-[33px] place-items-center rounded-full bg-brand-soft text-brand">
                     <Clock3 aria-hidden="true" className="h-[23px] w-[23px]" strokeWidth={2.2} />
                   </span>
-                  <h2 className="text-[17px] font-black leading-tight text-[#050505]">Horários de Funcionamento</h2>
+                  <h2 className="text-[17px] font-black leading-tight text-ink">Horários de Funcionamento</h2>
                 </div>
-                <button className="text-[15px] font-black text-[#ffb000]" type="button">
+                <button className="text-[15px] font-black text-brand" type="button">
                   Editar
                 </button>
               </header>
 
               <table className="mt-[31px] w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-[#e9e9e9] text-[14px] font-medium text-[#252d42]">
+                  <tr className="border-b border-line text-[14px] font-medium text-ink-2">
                     <th className="pb-[13px] font-medium">Dia da Semana</th>
                     <th className="pb-[13px] text-center font-medium">Abertura</th>
                     <th className="pb-[13px] text-center font-medium">Fechamento</th>
@@ -618,10 +626,10 @@ export function LojistaPerfilScreen() {
                 </thead>
                 <tbody>
                   {scheduleRows.map(([day, open, close]) => (
-                    <tr className="border-b border-[#eeeeee] last:border-b-0" key={day}>
-                      <td className="py-[12px] text-[14px] font-black text-[#050505]">{day}</td>
-                      <td className="py-[12px] text-center text-[14px] font-black text-[#050505]">{open}</td>
-                      <td className="py-[12px] text-center text-[14px] font-black text-[#050505]">{close}</td>
+                    <tr className="border-b border-line last:border-b-0" key={day}>
+                      <td className="py-[12px] text-[14px] font-black text-ink">{day}</td>
+                      <td className="py-[12px] text-center text-[14px] font-black text-ink">{open}</td>
+                      <td className="py-[12px] text-center text-[14px] font-black text-ink">{close}</td>
                       <td className="py-[12px] text-center">
                         <span className="inline-flex h-[25px] items-center rounded-full bg-[#dcfce7] px-[13px] text-[14px] font-black text-[#16a34a]">
                           Aberto
@@ -633,36 +641,36 @@ export function LojistaPerfilScreen() {
               </table>
             </section>
 
-            <section className="rounded-[8px] border border-[#e5e5e5] bg-white px-[23px] pb-[22px] pt-[24px]">
-              <h2 className="text-[17px] font-black leading-tight text-[#050505]">Pedido Mínimo</h2>
+            <section className="rounded-[8px] border border-line bg-surface px-[23px] pb-[22px] pt-[24px]">
+              <h2 className="text-[17px] font-black leading-tight text-ink">Pedido Mínimo</h2>
               <div className="mt-[31px] flex items-center gap-[43px]">
-                <label className="text-[16px] font-black text-[#050505]" htmlFor="minimum-order">
+                <label className="text-[16px] font-black text-ink" htmlFor="minimum-order">
                   Pedido mínimo
                 </label>
-                <div className="flex h-[54px] w-[220px] items-center justify-between rounded-[8px] border border-[#e1e1e1] bg-white px-[18px]">
+                <div className="flex h-[54px] w-[220px] items-center justify-between rounded-[8px] border border-line-strong bg-surface px-[18px]">
                   <input
-                    className="w-[120px] border-0 bg-transparent text-[20px] font-black text-[#050505] outline-0"
+                    className="w-[120px] border-0 bg-transparent text-[20px] font-black text-ink outline-0"
                     id="minimum-order"
                     onChange={(event) => setMinimumOrder(maskCurrencyBRL(event.target.value))}
                     value={minimumOrder}
                   />
-                  <span className="grid gap-[7px] text-[#050505]">
+                  <span className="grid gap-[7px] text-ink">
                     <ChevronDown aria-hidden="true" className="h-[18px] w-[18px] rotate-180" strokeWidth={3} />
                     <ChevronDown aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={3} />
                   </span>
                 </div>
               </div>
-              <p className="mt-[20px] text-[14px] font-medium text-[#283044]">
+              <p className="mt-[20px] text-[14px] font-medium text-ink-2">
                 O valor mínimo para realizar pedido na sua loja online.
               </p>
               <div className="mt-[60px] flex justify-end">
                 <button
-                  className="flex h-[49px] w-[304px] items-center justify-center gap-[17px] rounded-[6px] bg-[#ffb000] text-[18px] font-black text-[#050505]"
+                  className="press flex h-[49px] w-[304px] items-center justify-center gap-[17px] rounded-[6px] bg-brand text-[18px] font-black text-ink hover:bg-brand-strong hover:shadow-[0_10px_24px_rgba(255,176,0,.35)] disabled:cursor-not-allowed disabled:opacity-70"
                   disabled={isSaving}
                   onClick={handleProfileSave}
                   type="button"
                 >
-                  <RefreshCw aria-hidden="true" className="h-[21px] w-[21px]" strokeWidth={2.4} />
+                  <RefreshCw aria-hidden="true" className={`h-[21px] w-[21px] ${isSaving ? "animate-spin" : ""}`} strokeWidth={2.4} />
                   {isSaving ? "Atualizando..." : "Atualizar perfil"}
                 </button>
               </div>

@@ -106,19 +106,19 @@ export function WithdrawalScreen() {
 
   return (
     <AuthPhone>
-      <div className="h-[calc(100%-58px)] overflow-y-auto bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <header className="flex h-[54px] items-center justify-between border-b border-[#f0f1f3] px-5">
-          <Link aria-label="Voltar para financeiro" className="grid h-10 w-10 place-items-center text-[#111317]" href="/finance">
+      <div className="h-[calc(100%-58px)] overflow-y-auto bg-surface [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <header className="flex h-[54px] items-center justify-between border-b border-line px-5">
+          <Link aria-label="Voltar para financeiro" className="grid h-10 w-10 place-items-center text-ink" href="/finance">
             <FaArrowLeft aria-hidden="true" />
           </Link>
           <strong className="text-sm font-black">Saques</strong>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-positive-soft text-positive-strong">
             <FaWallet aria-hidden="true" />
           </span>
         </header>
 
-        <section className="grid gap-5 px-6 py-6">
-          <div className="rounded-[8px] bg-[#102017] p-5 text-white">
+        <section className="stagger grid gap-5 px-6 py-6">
+          <div className="rounded-[8px] bg-forest p-5 text-white">
             <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Financeiro real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">
               {wallet?.affiliate.available_commission ?? "Comissão disponível"}
@@ -128,20 +128,20 @@ export function WithdrawalScreen() {
             </p>
           </div>
 
-          <form className="grid gap-4 rounded-[8px] border border-[#eceef2] bg-white p-3" onSubmit={handleSubmit}>
+          <form className="grid gap-4 rounded-[8px] border border-line bg-surface p-3" onSubmit={handleSubmit}>
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Valor do saque</span>
+              <span className="text-xs font-black text-ink-2">Valor do saque</span>
               <input
-                className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
+                className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25 placeholder:text-ink-3"
                 onChange={(event) => setAmount(maskCurrencyBRL(event.target.value))}
                 placeholder="R$ 50,00"
                 value={amount}
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Destino</span>
+              <span className="text-xs font-black text-ink-2">Destino</span>
               <select
-                className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0"
+                className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25"
                 onChange={(event) => setDestination(event.target.value as "wallet" | "bank")}
                 value={destination}
               >
@@ -157,13 +157,13 @@ export function WithdrawalScreen() {
             </label>
 
             {feedback ? (
-              <p className="rounded-[8px] bg-[#eefaf1] px-3 py-2 text-xs font-black leading-5 text-[#087c1e]">
+              <p className="rounded-[8px] bg-positive-soft px-3 py-2 text-xs font-black leading-5 text-positive-strong">
                 {feedback}
               </p>
             ) : null}
 
             <button
-              className="flex h-12 items-center justify-center gap-2 rounded-[12px] bg-[#05b96e] text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
+              className="flex h-12 items-center justify-center gap-2 press rounded-[12px] bg-positive text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >
@@ -172,35 +172,35 @@ export function WithdrawalScreen() {
             </button>
           </form>
 
-          <section className="rounded-[8px] border border-[#eceef2] bg-white p-3">
+          <section className="rounded-[8px] border border-line bg-surface p-3">
             <h2 className="mb-3 text-[15px] font-black">Historico de saques</h2>
             <div className="grid gap-0">
               {withdrawals.length ? (
                 withdrawals.map((withdrawal, index) => (
                   <article
                     className={`grid min-h-[62px] grid-cols-[42px_1fr_auto] items-center gap-3 py-3 ${
-                      index ? "border-t border-[#eef0f4]" : ""
+                      index ? "border-t border-line" : ""
                     }`}
                     key={withdrawal.id}
                   >
-                    <span className="grid h-[38px] w-[38px] place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
+                    <span className="grid h-[38px] w-[38px] place-items-center rounded-full bg-positive-soft text-positive-strong">
                       <FaMoneyBillWave aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
-                      <strong className="block truncate text-sm font-black text-[#111317]">
+                      <strong className="block truncate text-sm font-black text-ink">
                         {formatCents(withdrawal.amount_cents)}
                       </strong>
-                      <small className="block truncate text-[11px] font-bold text-[#6b7280]">
+                      <small className="block truncate text-[11px] font-bold text-ink-3">
                         {withdrawal.destination === "bank" ? "Banco/Pix" : "Carteira"} · {statusLabels[withdrawal.status] ?? withdrawal.status}
                       </small>
                     </div>
-                    <b className="whitespace-nowrap text-xs font-black text-[#078323]">
+                    <b className="whitespace-nowrap text-xs font-black text-positive-strong">
                       {new Date(withdrawal.requested_at).toLocaleDateString("pt-BR")}
                     </b>
                   </article>
                 ))
               ) : (
-                <p className="py-6 text-center text-sm font-bold leading-5 text-[#6b7280]">Nenhum saque solicitado.</p>
+                <p className="py-6 text-center text-sm font-bold leading-5 text-ink-3">Nenhum saque solicitado.</p>
               )}
             </div>
           </section>

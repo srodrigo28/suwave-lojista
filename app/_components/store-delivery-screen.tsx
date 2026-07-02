@@ -39,9 +39,9 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-black text-[#4b5563]">{label}</span>
+      <span className="text-xs font-black text-ink-2">{label}</span>
       <input
-        className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
+        className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25 placeholder:text-ink-3"
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         type={type}
@@ -151,19 +151,19 @@ export function StoreDeliveryScreen() {
 
   return (
     <AuthPhone>
-      <div className="h-[calc(100%-58px)] overflow-y-auto bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <header className="flex h-[54px] items-center justify-between border-b border-[#f0f1f3] px-5">
-          <Link aria-label="Voltar para loja" className="grid h-10 w-10 place-items-center text-[#111317]" href="/store/profile">
+      <div className="h-[calc(100%-58px)] overflow-y-auto bg-surface [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <header className="flex h-[54px] items-center justify-between border-b border-line px-5">
+          <Link aria-label="Voltar para loja" className="grid h-10 w-10 place-items-center text-ink" href="/store/profile">
             <FaArrowLeft aria-hidden="true" />
           </Link>
           <strong className="text-sm font-black">Entrega</strong>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-positive-soft text-positive-strong">
             <FaMotorcycle aria-hidden="true" />
           </span>
         </header>
 
-        <section className="grid gap-5 px-6 py-6">
-          <div className="rounded-[8px] bg-[#102017] p-5 text-white">
+        <section className="stagger grid gap-5 px-6 py-6">
+          <div className="rounded-[8px] bg-forest p-5 text-white">
             <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Logística real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">
               {delivery.enabled ? `${delivery.radius_km} km de raio` : "Entrega pausada"}
@@ -174,22 +174,22 @@ export function StoreDeliveryScreen() {
           </div>
 
           <form className="grid gap-4" onSubmit={handleSubmit}>
-            <section className="rounded-[8px] border border-[#eceef2] bg-white p-3">
+            <section className="rounded-[8px] border border-line bg-surface p-3">
               <div className="grid gap-3">
-                <label className="flex items-center justify-between gap-3 text-sm font-black text-[#111317]">
+                <label className="flex items-center justify-between gap-3 text-sm font-black text-ink">
                   Entrega ativa
                   <input
                     checked={delivery.enabled}
-                    className="h-5 w-5 accent-[#05b96e]"
+                    className="h-5 w-5 accent-positive"
                     onChange={(event) => updateDelivery({ enabled: event.target.checked })}
                     type="checkbox"
                   />
                 </label>
-                <label className="flex items-center justify-between gap-3 text-sm font-black text-[#111317]">
+                <label className="flex items-center justify-between gap-3 text-sm font-black text-ink">
                   Retirada no balcao
                   <input
                     checked={delivery.pickup_enabled}
-                    className="h-5 w-5 accent-[#05b96e]"
+                    className="h-5 w-5 accent-positive"
                     onChange={(event) => updateDelivery({ pickup_enabled: event.target.checked })}
                     type="checkbox"
                   />
@@ -199,16 +199,16 @@ export function StoreDeliveryScreen() {
 
             <div className="grid grid-cols-2 gap-3">
               <label className="grid gap-2">
-                <span className="text-xs font-black text-[#4b5563]">CEP base</span>
+                <span className="text-xs font-black text-ink-2">CEP base</span>
                 <input
-                  className={`h-12 rounded-[12px] border bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 ${fieldErrors.cep ? "border-[#ef4444]" : "border-[#e6e9ef]"}`}
+                  className={`h-12 rounded-[12px] border bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25 ${fieldErrors.cep ? "border-danger" : "border-line"}`}
                   onChange={(event) => handleCepChange(event.target.value)}
                   placeholder="78550-000"
                   value={cep}
                 />
-                {fieldErrors.cep ? <small className="text-xs font-bold text-[#dc2626]">{fieldErrors.cep}</small> : null}
+                {fieldErrors.cep ? <small className="text-xs font-bold text-danger">{fieldErrors.cep}</small> : null}
               </label>
-              <div className="grid content-end rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 py-3 text-xs font-black text-[#4b5563]">
+              <div className="grid content-end rounded-[12px] border border-line bg-surface-2 px-4 py-3 text-xs font-black text-ink-2">
                 {addressPreview}
               </div>
             </div>
@@ -241,13 +241,13 @@ export function StoreDeliveryScreen() {
             />
 
             {feedback ? (
-              <p className="rounded-[8px] bg-[#eefaf1] px-3 py-2 text-xs font-black leading-5 text-[#087c1e]">
+              <p className="rounded-[8px] bg-positive-soft px-3 py-2 text-xs font-black leading-5 text-positive-strong">
                 {feedback}
               </p>
             ) : null}
 
             <button
-              className="flex h-12 items-center justify-center gap-2 rounded-[12px] bg-[#05b96e] text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
+              className="flex h-12 items-center justify-center gap-2 press rounded-[12px] bg-positive text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >

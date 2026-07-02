@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   description: "App do lojista Suwave.",
 };
 
+// Aplica o tema salvo antes da primeira pintura para evitar flash de tema errado.
+const themeInitScript = `try{var t=localStorage.getItem("suwave:lojista:theme");if(t==="auto"){t=matchMedia("(prefers-color-scheme: dark)").matches?"night":"classic"}if(t&&t!=="classic"){document.documentElement.dataset.theme=t}}catch(e){}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,8 +31,10 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
         <ToastProvider />
       </body>

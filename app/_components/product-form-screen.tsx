@@ -108,9 +108,9 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-black text-[#4b5563]">{label}</span>
+      <span className="text-xs font-black text-ink-2">{label}</span>
       <input
-        className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
+        className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25 placeholder:text-ink-3"
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         required={required}
@@ -194,19 +194,19 @@ export function ProductFormScreen() {
 
   return (
     <AuthPhone>
-      <div className="h-[calc(100%-58px)] overflow-y-auto bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <header className="flex h-[54px] items-center justify-between border-b border-[#f0f1f3] px-5">
-          <Link aria-label="Voltar para produtos" className="grid h-10 w-10 place-items-center text-[#111317]" href="/products">
+      <div className="h-[calc(100%-58px)] overflow-y-auto bg-surface [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <header className="flex h-[54px] items-center justify-between border-b border-line px-5">
+          <Link aria-label="Voltar para produtos" className="grid h-10 w-10 place-items-center text-ink" href="/products">
             <FaArrowLeft aria-hidden="true" />
           </Link>
           <strong className="text-sm font-black">Novo produto</strong>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-positive-soft text-positive-strong">
             <FaBoxOpen aria-hidden="true" />
           </span>
         </header>
 
-        <section className="grid gap-5 px-6 py-6">
-          <div className="rounded-[8px] bg-[#102017] p-5 text-white">
+        <section className="stagger grid gap-5 px-6 py-6">
+          <div className="rounded-[8px] bg-forest p-5 text-white">
             <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Catálogo real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">Cadastrar item</h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
@@ -216,9 +216,9 @@ export function ProductFormScreen() {
 
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Tipo</span>
+              <span className="text-xs font-black text-ink-2">Tipo</span>
               <select
-                className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0"
+                className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25"
                 onChange={(event) => setTypeKey(event.target.value)}
                 value={typeKey}
               >
@@ -237,11 +237,11 @@ export function ProductFormScreen() {
             </label>
 
             <Field label="Título" onChange={setTitle} placeholder="Pizza grande promocional" value={title} />
-            {fieldErrors.title ? <small className="-mt-2 text-xs font-bold text-[#dc2626]">{fieldErrors.title}</small> : null}
+            {fieldErrors.title ? <small className="-mt-2 text-xs font-bold text-danger">{fieldErrors.title}</small> : null}
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Descrição</span>
+              <span className="text-xs font-black text-ink-2">Descrição</span>
               <textarea
-                className="min-h-24 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 py-3 text-sm font-bold text-[#111317] outline-0 placeholder:text-[#9ca0a8]"
+                className="min-h-24 rounded-[12px] border border-line bg-surface-2 px-4 py-3 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25 placeholder:text-ink-3"
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Detalhes do produto, preparo, condição ou disponibilidade"
                 value={description}
@@ -252,7 +252,7 @@ export function ProductFormScreen() {
               <Field label="Estoque" onChange={setStock} placeholder="1" type="number" value={stock} />
             </div>
             {fieldErrors.price || fieldErrors.stock ? (
-              <small className="-mt-2 text-xs font-bold text-[#dc2626]">
+              <small className="-mt-2 text-xs font-bold text-danger">
                 {fieldErrors.price ?? fieldErrors.stock}
               </small>
             ) : null}
@@ -262,9 +262,9 @@ export function ProductFormScreen() {
             </div>
 
             <label className="grid gap-2">
-              <span className="text-xs font-black text-[#4b5563]">Publicação</span>
+              <span className="text-xs font-black text-ink-2">Publicação</span>
               <select
-                className="h-12 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-4 text-sm font-bold text-[#111317] outline-0"
+                className="h-12 rounded-[12px] border border-line bg-surface-2 px-4 text-sm font-bold text-ink outline-0 transition focus:border-brand focus:ring-2 focus:ring-brand/25"
                 onChange={(event) => setStatus(event.target.value as SellerProductPayload["status"])}
                 value={status}
               >
@@ -275,13 +275,13 @@ export function ProductFormScreen() {
             </label>
 
             {feedback ? (
-              <p className="rounded-[8px] bg-[#eefaf1] px-3 py-2 text-xs font-black leading-5 text-[#087c1e]">
+              <p className="rounded-[8px] bg-positive-soft px-3 py-2 text-xs font-black leading-5 text-positive-strong">
                 {feedback}
               </p>
             ) : null}
 
             <button
-              className="flex h-12 items-center justify-center gap-2 rounded-[12px] bg-[#05b96e] text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
+              className="flex h-12 items-center justify-center gap-2 press rounded-[12px] bg-positive text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >

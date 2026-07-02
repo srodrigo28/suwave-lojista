@@ -73,7 +73,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 function Field({ children, className, label }: FieldProps) {
   return (
     <label className={cx("grid min-w-0 gap-2", className)}>
-      <span className="text-[15px] font-black leading-none text-[#101010]">{label}</span>
+      <span className="text-[15px] font-black leading-none text-ink">{label}</span>
       {children}
     </label>
   );
@@ -87,15 +87,15 @@ function ShadInput({
   return (
     <div
       className={cx(
-        "flex h-12 items-center rounded-[8px] border border-[#d9d9d9] bg-white px-4 transition focus-within:border-[#f6bd14] focus-within:ring-2 focus-within:ring-[#f6bd14]/20",
+        "flex h-12 items-center rounded-[8px] border border-line-strong bg-surface px-4 transition focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20",
         className,
       )}
     >
       <input
         {...props}
-        className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-[#171717] outline-none placeholder:text-[#7d8290]"
+        className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-ink-3"
       />
-      {icon ? <span className="ml-3 grid h-6 w-6 place-items-center text-[#737782]">{icon}</span> : null}
+      {icon ? <span className="ml-3 grid h-6 w-6 place-items-center text-ink-3">{icon}</span> : null}
     </div>
   );
 }
@@ -108,17 +108,17 @@ function ShadSelect({
   return (
     <div
       className={cx(
-        "relative flex h-12 items-center rounded-[8px] border border-[#d9d9d9] bg-white px-4 transition focus-within:border-[#f6bd14] focus-within:ring-2 focus-within:ring-[#f6bd14]/20",
+        "relative flex h-12 items-center rounded-[8px] border border-line-strong bg-surface px-4 transition focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20",
         className,
       )}
     >
       <select
         {...props}
-        className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent pr-8 text-[15px] font-semibold text-[#6e7280] outline-none"
+        className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent pr-8 text-[15px] font-semibold text-ink-3 outline-none"
       >
         {children}
       </select>
-      <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-5 h-4 w-4 text-[#7b7f89]" />
+      <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-5 h-4 w-4 text-ink-3" />
     </div>
   );
 }
@@ -126,8 +126,8 @@ function ShadSelect({
 function SectionTitle({ children, icon }: { children: ReactNode; icon: ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="grid h-7 w-7 place-items-center text-[25px] text-[#f6bd14]">{icon}</span>
-      <h2 className="text-[22px] font-black leading-none tracking-normal text-[#101010]">{children}</h2>
+      <span className="grid h-7 w-7 place-items-center text-[25px] text-brand">{icon}</span>
+      <h2 className="text-[22px] font-black leading-none tracking-normal text-ink">{children}</h2>
     </div>
   );
 }
@@ -144,49 +144,49 @@ function MapPreview() {
   ];
 
   return (
-    <div className="relative mt-5 h-[220px] overflow-hidden rounded-[7px] border border-[#ededed] bg-[#f2eee9] md:h-[250px]">
+    <div className="relative mt-5 h-[220px] overflow-hidden rounded-[7px] border border-line bg-surface-2 md:h-[250px]">
       <div className="absolute -left-[5%] bottom-[-18%] h-[190px] w-[210px] rotate-[-9deg] rounded-[38px] bg-[#cdebb9]" />
       <div className="absolute -right-[5%] bottom-[-8%] h-[180px] w-[260px] rotate-[12deg] rounded-[44px] bg-[#cdebb9]" />
-      <div className="absolute right-[1%] top-[16%] h-[72px] w-[120px] rotate-[22deg] rounded-[5px] bg-[#eef5f1]" />
+      <div className="absolute right-[1%] top-[16%] h-[72px] w-[120px] rotate-[22deg] rounded-[5px] bg-positive-soft" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,.28)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,.22)_1px,transparent_1px)] bg-[size:72px_54px]" />
 
       {roads.map((road) => (
         <span
           aria-hidden="true"
-          className={cx("absolute rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,.02)]", road)}
+          className={cx("absolute rounded-full bg-surface shadow-[0_0_0_1px_rgba(0,0,0,.02)]", road)}
           key={road}
         />
       ))}
 
-      <span className="absolute left-[32%] top-[34%] rotate-[-5deg] text-[13px] font-black text-[#424242]">
+      <span className="absolute left-[32%] top-[34%] rotate-[-5deg] text-[13px] font-black text-ink-2">
         R. das Orquídeas
       </span>
-      <span className="absolute left-[31%] top-[6%] rotate-[4deg] text-[13px] font-black text-[#424242]">
+      <span className="absolute left-[31%] top-[6%] rotate-[4deg] text-[13px] font-black text-ink-2">
         Av. das Figueiras
       </span>
-      <span className="absolute right-[18%] top-[8%] rotate-[8deg] text-[13px] font-black text-[#424242]">
+      <span className="absolute right-[18%] top-[8%] rotate-[8deg] text-[13px] font-black text-ink-2">
         R. das Palmeiras
       </span>
-      <span className="absolute bottom-[18%] left-[52%] rotate-[-8deg] text-[13px] font-black text-[#424242]">
+      <span className="absolute bottom-[18%] left-[52%] rotate-[-8deg] text-[13px] font-black text-ink-2">
         R. das Flores
       </span>
-      <span className="absolute bottom-[24%] right-[34%] rotate-[82deg] text-[13px] font-black text-[#424242]">
+      <span className="absolute bottom-[24%] right-[34%] rotate-[82deg] text-[13px] font-black text-ink-2">
         Rua B. Lambari
       </span>
 
-      <span className="absolute left-[48%] top-[35%] grid h-[56px] w-[56px] -translate-x-1/2 place-items-center rounded-full bg-[#f6bd14] text-white shadow-[0_8px_14px_rgba(246,189,20,.3)] before:absolute before:bottom-[-12px] before:h-7 before:w-7 before:rotate-45 before:rounded-[5px] before:bg-[#f6bd14]">
+      <span className="absolute left-[48%] top-[35%] grid h-[56px] w-[56px] -translate-x-1/2 place-items-center rounded-full bg-brand text-white shadow-[0_8px_14px_rgba(246,189,20,.3)] before:absolute before:bottom-[-12px] before:h-7 before:w-7 before:rotate-45 before:rounded-[5px] before:bg-brand">
         <MapPin aria-hidden="true" className="relative z-10 h-8 w-8" strokeWidth={2.8} />
       </span>
 
-      <div className="absolute bottom-3 right-3 overflow-hidden rounded-[7px] border border-[#d4d4d4] bg-white shadow-[0_10px_24px_rgba(0,0,0,.12)]">
+      <div className="absolute bottom-3 right-3 overflow-hidden rounded-[7px] border border-line-strong bg-surface shadow-[0_10px_24px_rgba(0,0,0,.12)]">
         <button
           aria-label="Aproximar mapa"
-          className="grid h-12 w-12 place-items-center border-b border-[#e3e3e3] text-xl text-[#111111]"
+          className="grid h-12 w-12 place-items-center border-b border-line text-xl text-ink"
           type="button"
         >
           <Plus aria-hidden="true" className="h-6 w-6" strokeWidth={3} />
         </button>
-        <button aria-label="Afastar mapa" className="grid h-12 w-12 place-items-center text-xl text-[#111111]" type="button">
+        <button aria-label="Afastar mapa" className="grid h-12 w-12 place-items-center text-xl text-ink" type="button">
           <Minus aria-hidden="true" className="h-6 w-6" strokeWidth={3} />
         </button>
       </div>
@@ -323,14 +323,14 @@ export function CommerceRegisterScreen() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f3] px-4 py-4 text-[#101010] sm:px-7 sm:py-6">
-      <section className="mx-auto min-h-[calc(100vh-48px)] w-full max-w-[1440px] rounded-[16px] bg-white px-5 py-8 shadow-[0_22px_70px_rgba(0,0,0,.08)] sm:px-10 lg:px-[62px] lg:py-10">
+    <main className="min-h-screen bg-surface-3 px-4 py-4 text-ink sm:px-7 sm:py-6">
+      <section className="mx-auto min-h-[calc(100vh-48px)] w-full max-w-[1440px] rounded-[16px] bg-surface px-5 py-8 shadow-[0_22px_70px_rgba(0,0,0,.08)] sm:px-10 lg:px-[62px] lg:py-10">
         <form className="mx-auto flex min-h-[calc(100vh-128px)] max-w-[1260px] flex-col" onSubmit={handleSubmit}>
           <header>
-            <h1 className="text-[34px] font-black leading-tight tracking-normal text-[#050505] sm:text-[42px] lg:text-[48px]">
-              Cadastrar <span className="text-[#f6bd14]">seu comércio</span>
+            <h1 className="text-[34px] font-black leading-tight tracking-normal text-ink sm:text-[42px] lg:text-[48px]">
+              Cadastrar <span className="text-brand">seu comércio</span>
             </h1>
-            <p className="mt-3 text-[17px] font-semibold leading-7 text-[#6d7280]">
+            <p className="mt-3 text-[17px] font-semibold leading-7 text-ink-3">
               Preencha os dados abaixo para fazer seu cadastro na Suwave.
             </p>
           </header>
@@ -363,7 +363,7 @@ export function CommerceRegisterScreen() {
             </div>
           </section>
 
-          <hr className="my-7 border-[#e1e1e1]" />
+          <hr className="my-7 border-line-strong" />
 
           <section className="grid gap-6">
             <SectionTitle icon={<Store aria-hidden="true" strokeWidth={2.4} />}>Informações da loja</SectionTitle>
@@ -377,7 +377,7 @@ export function CommerceRegisterScreen() {
                   required
                   value={cep}
                 />
-                {cepFeedback ? <small className="text-xs font-bold text-[#dc2626]">{cepFeedback}</small> : null}
+                {cepFeedback ? <small className="text-xs font-bold text-danger">{cepFeedback}</small> : null}
               </Field>
               <Field label="Estado">
                 <ShadSelect
@@ -434,14 +434,14 @@ export function CommerceRegisterScreen() {
 
           <section className="mt-6">
             <div className="flex items-start gap-4">
-              <span className="grid h-7 w-7 shrink-0 place-items-center text-[27px] text-[#f6bd14]">
+              <span className="grid h-7 w-7 shrink-0 place-items-center text-[27px] text-brand">
                 <MapPin aria-hidden="true" strokeWidth={2.5} />
               </span>
               <div>
-                <h2 className="text-[22px] font-black leading-none tracking-normal text-[#101010]">
+                <h2 className="text-[22px] font-black leading-none tracking-normal text-ink">
                   Revise a localização da sua loja
                 </h2>
-                <p className="mt-3 max-w-[500px] text-[16px] font-semibold leading-6 text-[#6d7280]">
+                <p className="mt-3 max-w-[500px] text-[16px] font-semibold leading-6 text-ink-3">
                   Se precisar, clique no mapa para editar.
                   <br />
                   Você também pode usar o zoom para editar com mais precisão.
@@ -459,14 +459,14 @@ export function CommerceRegisterScreen() {
 
           <footer className="mt-auto flex flex-col-reverse gap-3 pt-7 sm:flex-row sm:items-center sm:justify-between">
             <Link
-              className="inline-flex h-[58px] items-center justify-center gap-3 rounded-[8px] border border-[#cfd1d6] bg-white px-7 text-[17px] font-black text-[#111111] no-underline transition hover:bg-[#f7f7f7]"
+              className="inline-flex h-[58px] items-center justify-center gap-3 rounded-[8px] border border-line-strong bg-surface px-7 text-[17px] font-black text-ink no-underline transition hover:bg-surface-2"
               href="/"
             >
               <ChevronLeft aria-hidden="true" className="h-5 w-5" strokeWidth={3} />
               Voltar
             </Link>
             <button
-              className="inline-flex h-[58px] items-center justify-center gap-5 rounded-[8px] bg-[#f6bd14] px-9 text-[18px] font-black text-[#080808] transition hover:bg-[#e8ad06] disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex h-[58px] items-center justify-center gap-5 rounded-[8px] bg-brand px-9 text-[18px] font-black text-ink transition hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-70"
               disabled={isSubmitting}
               type="submit"
             >

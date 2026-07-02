@@ -1,5 +1,14 @@
-import { SellerStaticPage } from "../_components/page-factory";
+import { notFound } from "next/navigation";
+import { SellerShell } from "../_components/seller-shell";
+import { sellerPages } from "../_components/seller-data";
+import { ThemeSwitcher } from "../_components/theme-switcher";
 
 export default function Page() {
-  return <SellerStaticPage pageId="settings" />;
+  const page = sellerPages.settings;
+
+  if (!page) {
+    notFound();
+  }
+
+  return <SellerShell extra={<ThemeSwitcher />} page={page} />;
 }

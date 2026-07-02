@@ -110,19 +110,19 @@ export function StoreHoursScreen() {
 
   return (
     <AuthPhone>
-      <div className="h-[calc(100%-58px)] overflow-y-auto bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <header className="flex h-[54px] items-center justify-between border-b border-[#f0f1f3] px-5">
-          <Link aria-label="Voltar para loja" className="grid h-10 w-10 place-items-center text-[#111317]" href="/store/profile">
+      <div className="h-[calc(100%-58px)] overflow-y-auto bg-surface [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <header className="flex h-[54px] items-center justify-between border-b border-line px-5">
+          <Link aria-label="Voltar para loja" className="grid h-10 w-10 place-items-center text-ink" href="/store/profile">
             <FaArrowLeft aria-hidden="true" />
           </Link>
           <strong className="text-sm font-black">Horários</strong>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eefaf1] text-[#078323]">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-positive-soft text-positive-strong">
             <FaClock aria-hidden="true" />
           </span>
         </header>
 
-        <section className="grid gap-5 px-6 py-6">
-          <div className="rounded-[8px] bg-[#102017] p-5 text-white">
+        <section className="stagger grid gap-5 px-6 py-6">
+          <div className="rounded-[8px] bg-forest p-5 text-white">
             <span className="text-[11px] font-black uppercase tracking-normal text-[#9ff2c2]">Operação real</span>
             <h1 className="mt-2 text-[28px] font-black leading-tight tracking-normal">Atendimento semanal</h1>
             <p className="mt-2 text-sm font-bold leading-5 text-white/75">
@@ -132,13 +132,13 @@ export function StoreHoursScreen() {
 
           <form className="grid gap-3" onSubmit={handleSubmit}>
             {hours.map((hour) => (
-              <section className="rounded-[8px] border border-[#eceef2] bg-white p-3" key={hour.day}>
+              <section className="rounded-[8px] border border-line bg-surface p-3" key={hour.day}>
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <strong className="text-sm font-black text-[#111317]">{dayLabels[hour.day] ?? hour.day}</strong>
-                  <label className="flex items-center gap-2 text-xs font-black text-[#4b5563]">
+                  <strong className="text-sm font-black text-ink">{dayLabels[hour.day] ?? hour.day}</strong>
+                  <label className="flex items-center gap-2 text-xs font-black text-ink-2">
                     <input
                       checked={hour.enabled}
-                      className="h-4 w-4 accent-[#05b96e]"
+                      className="h-4 w-4 accent-positive"
                       onChange={(event) => updateHour(hour.day, { enabled: event.target.checked })}
                       type="checkbox"
                     />
@@ -147,18 +147,18 @@ export function StoreHoursScreen() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="grid gap-2">
-                    <span className="text-xs font-black text-[#4b5563]">Abre</span>
+                    <span className="text-xs font-black text-ink-2">Abre</span>
                     <input
-                      className="h-11 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-3 text-sm font-bold outline-0"
+                      className="h-11 rounded-[12px] border border-line bg-surface-2 px-3 text-sm font-bold outline-0"
                       onChange={(event) => updateHour(hour.day, { opens_at: maskTime(event.target.value) })}
                       inputMode="numeric"
                       value={hour.opens_at}
                     />
                   </label>
                   <label className="grid gap-2">
-                    <span className="text-xs font-black text-[#4b5563]">Fecha</span>
+                    <span className="text-xs font-black text-ink-2">Fecha</span>
                     <input
-                      className="h-11 rounded-[12px] border border-[#e6e9ef] bg-[#f8fafb] px-3 text-sm font-bold outline-0"
+                      className="h-11 rounded-[12px] border border-line bg-surface-2 px-3 text-sm font-bold outline-0"
                       onChange={(event) => updateHour(hour.day, { closes_at: maskTime(event.target.value) })}
                       inputMode="numeric"
                       value={hour.closes_at}
@@ -166,19 +166,19 @@ export function StoreHoursScreen() {
                   </label>
                 </div>
                 {fieldErrors[hour.day] ? (
-                  <p className="mt-3 text-xs font-black text-[#dc2626]">{fieldErrors[hour.day]}</p>
+                  <p className="mt-3 text-xs font-black text-danger">{fieldErrors[hour.day]}</p>
                 ) : null}
               </section>
             ))}
 
             {feedback ? (
-              <p className="rounded-[8px] bg-[#eefaf1] px-3 py-2 text-xs font-black leading-5 text-[#087c1e]">
+              <p className="rounded-[8px] bg-positive-soft px-3 py-2 text-xs font-black leading-5 text-positive-strong">
                 {feedback}
               </p>
             ) : null}
 
             <button
-              className="flex h-12 items-center justify-center gap-2 rounded-[12px] bg-[#05b96e] text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
+              className="flex h-12 items-center justify-center gap-2 press rounded-[12px] bg-positive text-sm font-black text-white shadow-[0_12px_20px_rgba(5,185,110,.22)] disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >

@@ -1,13 +1,118 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------- */
+/* Design tokens — paleta semântica SUWAVE Lojista                         */
+/* Troca de tema futura: <html data-theme="night"> sobrescreve os tokens   */
+/* e todas as telas tokenizadas mudam juntas. Ver plano em                 */
+/* project/2-julho-melhorias visuais.md                                    */
+/* ---------------------------------------------------------------------- */
+
 :root {
+  /* Tema "Classic" (padrão, claro) */
   --background: #ffffff;
   --foreground: #111317;
+
+  --brand: #ffb000;
+  --brand-strong: #f7a900;
+  --brand-soft: #fff4da;
+
+  --positive: #05b96e;
+  --positive-strong: #087c1e;
+  --positive-soft: #eefaf1;
+
+  --forest: #102017;
+
+  --danger: #ef233c;
+  --danger-soft: #fee2e2;
+  --warning: #b77900;
+
+  --surface: #ffffff;
+  --surface-2: #f8fafb;
+  --surface-3: #f7f7f6;
+
+  --line: #eceef2;
+  --line-strong: #d4d4d4;
+
+  --ink: #111317;
+  --ink-2: #4b5563;
+  --ink-3: #6b7280;
+}
+
+[data-theme="night"] {
+  --background: #0b0d10;
+  --foreground: #f4f6f8;
+
+  --brand: #ffb000;
+  --brand-strong: #e69e00;
+  --brand-soft: #2a2312;
+
+  --positive: #10d17f;
+  --positive-strong: #34d17c;
+  --positive-soft: #0d2b1e;
+
+  --forest: #0d1a12;
+
+  --danger: #ff5b6b;
+  --danger-soft: #3a1116;
+  --warning: #eab308;
+
+  --surface: #14171c;
+  --surface-2: #1b1f26;
+  --surface-3: #0b0d10;
+
+  --line: #262b33;
+  --line-strong: #333a45;
+
+  --ink: #f4f6f8;
+  --ink-2: #c3c9d2;
+  --ink-3: #8b93a1;
+
+  color-scheme: dark;
+}
+
+[data-theme="fresh"] {
+  --brand: #f6bd14;
+  --brand-strong: #e4aa08;
+  --brand-soft: #fdf3d0;
+
+  --positive-soft: #e4f7ec;
+  --forest: #0e2b1a;
+  --danger: #e11d48;
+  --danger-soft: #ffe4e6;
+  --warning: #b45309;
+
+  --surface-2: #f6faf7;
+  --surface-3: #f2f7f3;
+
+  --line: #e2ece5;
+  --line-strong: #c8d6cc;
+
+  --ink: #101710;
+  --ink-2: #3f4a42;
+  --ink-3: #5f6b62;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-positive: var(--positive);
+  --color-positive-strong: var(--positive-strong);
+  --color-positive-soft: var(--positive-soft);
+  --color-forest: var(--forest);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -28,6 +133,283 @@ select {
 
 * {
   box-sizing: border-box;
+}
+
+/* Foco visível consistente (teclado) em todo o app */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sistema de animação — entrada de telas, cascata e micro-interações      */
+/* Curva assinatura do app (mesma do splash): saída rápida, chegada suave  */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --ease-suwave: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes suwaveRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes suwaveFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes suwavePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes suwaveSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes suwaveBadgePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(239 35 60 / 0.45);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgb(239 35 60 / 0);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes suwaveShimmer {
+  from {
+    background-position: -200% 0;
+  }
+
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.anim-rise {
+  animation: suwaveRiseIn 0.55s var(--ease-suwave) both;
+}
+
+.anim-fade {
+  animation: suwaveFadeIn 0.5s ease-out both;
+}
+
+.anim-pop {
+  animation: suwavePopIn 0.45s var(--ease-suwave) both;
+}
+
+.anim-slide-r {
+  animation: suwaveSlideRight 0.5s var(--ease-suwave) both;
+}
+
+.anim-d1 { animation-delay: 0.06s; }
+.anim-d2 { animation-delay: 0.12s; }
+.anim-d3 { animation-delay: 0.18s; }
+.anim-d4 { animation-delay: 0.24s; }
+.anim-d5 { animation-delay: 0.3s; }
+.anim-d6 { animation-delay: 0.36s; }
+.anim-d7 { animation-delay: 0.42s; }
+.anim-d8 { animation-delay: 0.48s; }
+
+/* Cascata automática: filhos diretos entram em sequência de 60ms */
+.stagger > * {
+  animation: suwaveRiseIn 0.5s var(--ease-suwave) both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.16s; }
+.stagger > *:nth-child(4) { animation-delay: 0.22s; }
+.stagger > *:nth-child(5) { animation-delay: 0.28s; }
+.stagger > *:nth-child(6) { animation-delay: 0.34s; }
+.stagger > *:nth-child(7) { animation-delay: 0.4s; }
+.stagger > *:nth-child(8) { animation-delay: 0.46s; }
+.stagger > *:nth-child(9) { animation-delay: 0.52s; }
+.stagger > *:nth-child(10) { animation-delay: 0.58s; }
+.stagger > *:nth-child(n + 11) { animation-delay: 0.64s; }
+
+/* Micro-interações */
+.press {
+  transition:
+    transform 0.15s var(--ease-suwave),
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.press:active {
+  transform: scale(0.97);
+}
+
+.hover-lift {
+  transition:
+    transform 0.25s var(--ease-suwave),
+    box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+.badge-pulse {
+  animation: suwaveBadgePulse 2.4s ease-in-out infinite;
+}
+
+.shimmer {
+  animation: suwaveShimmer 1.6s linear infinite;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--line) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ---------------------------------------------------------------------- */
+/* View Transitions — crossfade suave entre rotas (Next 16 + React)        */
+/* ---------------------------------------------------------------------- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+  animation-timing-function: var(--ease-suwave);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Celebração — chuva de confete em CSS puro (conclusão de cadastro)       */
+/* ---------------------------------------------------------------------- */
+
+.confetti-layer {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: fixed;
+  z-index: 60;
+}
+
+.confetti-piece {
+  animation: suwaveConfettiFall var(--dur) var(--ease-suwave) var(--delay) forwards;
+  background: var(--c);
+  border-radius: 2px;
+  height: var(--h);
+  left: var(--x);
+  opacity: 0;
+  position: absolute;
+  top: -8vh;
+  width: var(--w);
+  will-change: transform, opacity;
+}
+
+@keyframes suwaveConfettiFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), 118vh, 0) rotate(var(--spin));
+  }
+}
+
+/* Overlay do hero da landing — segue a superfície do tema para manter o
+   contraste do texto tanto no claro quanto no escuro */
+.hero-fade {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--surface) 98%, transparent) 0%,
+    color-mix(in srgb, var(--surface) 94%, transparent) 30%,
+    color-mix(in srgb, var(--surface) 20%, transparent) 52%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .hero-fade {
+    background: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-fade,
+  .anim-pop,
+  .anim-slide-r,
+  .stagger > *,
+  .badge-pulse,
+  .shimmer {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .press,
+  .hover-lift {
+    transition: none;
+  }
+
+  .press:active,
+  .hover-lift:hover {
+    transform: none;
+  }
+
+  .confetti-layer {
+    display: none;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
